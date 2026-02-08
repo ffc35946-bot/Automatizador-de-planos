@@ -5,7 +5,7 @@
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-    <title>Automatizador de Planos SaaS</title>
+    <title>Plan Automator - Micro-SaaS Manager</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
       @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
@@ -44,8 +44,17 @@
       .custom-scrollbar::-webkit-scrollbar { width: 4px; }
       .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
       .custom-scrollbar::-webkit-scrollbar-thumb { background: #374151; border-radius: 10px; }
+      
+      .markdown-content h1, .markdown-content h2, .markdown-content h3 { color: white; font-weight: 800; margin-top: 1.5rem; margin-bottom: 0.75rem; }
+      .markdown-content p { margin-bottom: 1rem; line-height: 1.6; }
+      .markdown-content ul { list-style-type: disc; padding-left: 1.5rem; margin-bottom: 1rem; }
+      .markdown-content li { margin-bottom: 0.5rem; }
+      .markdown-content strong { color: #6366f1; }
     </style>
     <script>
+      // Polyfill para evitar erros no Vercel/Browser onde process não está definido
+      window.process = window.process || { env: { API_KEY: "" } };
+      
       tailwind.config = {
         theme: {
           extend: {
@@ -61,6 +70,7 @@
             },
             animation: {
               'fade-in': 'fadeIn 0.5s ease-out forwards',
+              'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
             },
             keyframes: {
               fadeIn: {

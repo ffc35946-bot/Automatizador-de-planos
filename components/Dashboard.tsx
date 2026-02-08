@@ -1,24 +1,64 @@
 
 import React, { useState, useEffect } from 'react';
 import { ResponsiveContainer, AreaChart, Area, XAxis, YAxis, Tooltip } from 'recharts';
-import { LogStatus, type LogEntry, type User } from '../types';
-import { TrendingUp, CheckCircle, XCircle, Activity, LayoutDashboard, Rocket } from 'lucide-react';
+import { LogStatus, IntegrationPlatform, type LogEntry, type User } from '../types';
+import { TrendingUp, CheckCircle, XCircle, Activity, LayoutDashboard, Rocket, Zap, Wand2 } from 'lucide-react';
 
 const Dashboard: React.FC = () => {
   const [logs, setLogs] = useState<LogEntry[]>([]);
   const [user, setUser] = useState<User | null>(null);
+  const [isSimulating, setIsSimulating] = useState(false);
+
+  const loadLogs = (email: string) => {
+    const userLogs = localStorage.getItem(`logs_${email}`);
+    if (userLogs) {
+      setLogs(JSON.parse(userLogs).map((l: any) => ({ ...l, timestamp: new Date(l.timestamp) })));
+    }
+  };
 
   useEffect(() => {
     const session = localStorage.getItem('saas_active_session');
     if (session) {
       const userData = JSON.parse(session);
       setUser(userData);
-      const userLogs = localStorage.getItem(`logs_${userData.email}`);
-      if (userLogs) {
-        setLogs(JSON.parse(userLogs).map((l: any) => ({ ...l, timestamp: new Date(l.timestamp) })));
-      }
+      loadLogs(userData.email);
     }
   }, []);
+
+  const simulateSale = () => {
+    if (!user) return;
+    setIsSimulating(true);
+    
+    setTimeout(() => {
+      const platforms = [IntegrationPlatform.Kirvano, IntegrationPlatform.Cakto, IntegrationPlatform.Kiwify];
+      const plans = ['Plano VIP Mensal', 'Master Anual', 'Micro-SaaS Lite', 'Pro Lifetime'];
+      const errors = [
+        '401 Unauthorized: API Key do destino inválida',
+        '404 Not Found: E-mail do cliente não existe na sua base',
+        '500 Server Error: Timeout na resposta do seu Endpoint',
+        'Mapeamento incorreto: Código "prod_99" não encontrado'
+      ];
+      
+      const isSuccess = Math.random() > 0.3;
+      
+      const newLog: LogEntry = {
+        id: Math.random().toString(36).substr(2, 9),
+        timestamp: new Date(),
+        platform: platforms[Math.floor(Math.random() * platforms.length)],
+        userEmail: `cliente_${Math.floor(Math.random() * 1000)}@exemplo.com`,
+        plan: plans[Math.floor(Math.random() * plans.length)],
+        status: isSuccess ? LogStatus.Success : LogStatus.Failed,
+        error: isSuccess ? undefined : errors[Math.floor(Math.random() * errors.length)]
+      };
+
+      const existingLogs = JSON.parse(localStorage.getItem(`logs_${user.email}`) || '[]');
+      const updatedLogs = [newLog, ...existingLogs].slice(0, 50); // Mantém apenas os 50 mais recentes
+      localStorage.setItem(`logs_${user.email}`, JSON.stringify(updatedLogs));
+      
+      setLogs(updatedLogs.map(l => ({ ...l, timestamp: new Date(l.timestamp) })));
+      setIsSimulating(false);
+    }, 800);
+  };
 
   const totalActivations = logs.length;
   const successfulActivations = logs.filter(log => log.status === LogStatus.Success).length;
@@ -51,33 +91,37 @@ const Dashboard: React.FC = () => {
         </div>
         <h2 className="text-3xl font-black text-white mb-3">Bem-vindo, {user?.name?.split(' ')[0]}!</h2>
         <p className="text-text-secondary max-w-md leading-relaxed mb-8">
-          Seu painel está pronto, mas ainda não recebemos nenhuma venda. Conecte um checkout na aba <strong>Integrações</strong> para começar.
+          Seu painel está pronto, mas ainda não recebemos nenhuma venda. Você pode configurar uma integração real ou simular agora para ver como funciona.
         </p>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 w-full max-w-lg">
-           <div className="bg-card/50 p-4 rounded-2xl border border-white/5 flex items-center gap-4">
-              <div className="w-10 h-10 bg-secondary/20 rounded-xl flex items-center justify-center text-secondary">1</div>
-              <span className="text-xs font-bold text-white text-left">Configure seu Endpoint SaaS</span>
-           </div>
-           <div className="bg-card/50 p-4 rounded-2xl border border-white/5 flex items-center gap-4">
-              <div className="w-10 h-10 bg-primary/20 rounded-xl flex items-center justify-center text-primary">2</div>
-              <span className="text-xs font-bold text-white text-left">Conecte o Webhook no Checkout</span>
-           </div>
+        <div className="flex flex-col sm:flex-row gap-4 w-full max-w-lg">
+           <button 
+             onClick={simulateSale}
+             disabled={isSimulating}
+             className="flex-1 bg-primary hover:bg-indigo-500 text-white font-black py-4 rounded-2xl shadow-xl transition-all uppercase tracking-widest text-xs flex items-center justify-center gap-2"
+           >
+             {isSimulating ? <Activity className="animate-spin" size={16} /> : <Zap size={16} />}
+             Simular Primeira Venda
+           </button>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="space-y-8 animate-fade-in">
+    <div className="space-y-8 animate-fade-in pb-20">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6">
         <div>
           <h2 className="text-3xl font-black text-white tracking-tight">Olá, {user?.name?.split(' ')[0]}</h2>
           <p className="text-text-secondary mt-1 font-medium text-sm">Resumo operacional das últimas 24h.</p>
         </div>
-        <div className="bg-primary/10 border border-primary/20 px-4 py-2 rounded-2xl flex items-center justify-center gap-2 text-primary font-bold text-xs uppercase tracking-widest w-fit">
-          <Activity size={16} />
-          <span>Monitoramento Ativo</span>
-        </div>
+        <button 
+          onClick={simulateSale}
+          disabled={isSimulating}
+          className="bg-secondary/10 hover:bg-secondary/20 border border-secondary/20 px-6 py-3 rounded-2xl flex items-center justify-center gap-3 text-secondary font-bold text-xs uppercase tracking-widest transition-all active:scale-95"
+        >
+          {isSimulating ? <Activity size={16} className="animate-spin" /> : <Wand2 size={16} />}
+          <span>Simular Venda</span>
+        </button>
       </div>
       
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-6">
@@ -97,7 +141,7 @@ const Dashboard: React.FC = () => {
           <p className="text-text-secondary text-[10px] font-bold uppercase tracking-widest">Erros</p>
         </div>
         <div className="bg-card/50 backdrop-blur-sm p-5 md:p-6 rounded-[2rem] border border-border shadow-xl">
-          <LayoutDashboard size={20} className="text-yellow-400 mb-4" />
+          <Activity size={20} className="text-yellow-400 mb-4" />
           <p className="text-2xl md:text-3xl font-black text-white mb-1">{successRate}%</p>
           <p className="text-text-secondary text-[10px] font-bold uppercase tracking-widest">Taxa de Sucesso</p>
         </div>

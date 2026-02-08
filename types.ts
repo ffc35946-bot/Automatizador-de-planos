@@ -1,3 +1,4 @@
+
 export type Page = 'dashboard' | 'integrations' | 'logs' | 'settings';
 
 export enum IntegrationPlatform {
@@ -11,6 +12,14 @@ export enum LogStatus {
   Success = 'Sucesso',
   Failed = 'Falha',
   Processing = 'Processando'
+}
+
+export enum SubscriptionStatus {
+  Active = 'Ativa',
+  Canceled = 'Cancelada',
+  PastDue = 'Atrasada',
+  Expired = 'Expirada',
+  SinglePurchase = 'Compra Única'
 }
 
 export interface Integration {
@@ -29,6 +38,8 @@ export interface LogEntry {
   userEmail: string;
   plan: string;
   status: LogStatus;
+  subStatus: SubscriptionStatus;
+  expiryDate?: Date;
   error?: string;
 }
 

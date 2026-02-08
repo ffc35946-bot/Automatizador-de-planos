@@ -3,8 +3,8 @@ import { GoogleGenAI } from "@google/genai";
 import type { LogEntry } from '../types';
 
 export const getTroubleshootingSteps = async (log: LogEntry): Promise<string> => {
-  // Inicialização segura conforme diretrizes do desenvolvedor
-  const ai = new GoogleGenAI({ apiKey: process.env.API_KEY || "" });
+  // Fix: Initialize GoogleGenAI according to guidelines using process.env.API_KEY directly
+  const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
   
   const prompt = `
     Você é um engenheiro de suporte especialista para uma plataforma de automação SaaS (Plan Automator).
@@ -25,11 +25,13 @@ export const getTroubleshootingSteps = async (log: LogEntry): Promise<string> =>
   `;
 
   try {
+    // Fix: Use gemini-3-pro-preview for complex troubleshooting tasks as per guidelines
     const response = await ai.models.generateContent({
-      model: 'gemini-3-flash-preview',
+      model: 'gemini-3-pro-preview',
       contents: prompt,
     });
     
+    // Fix: Use response.text directly as it is a property getter
     return response.text || 'O assistente de IA processou a solicitação, mas não retornou conteúdo. Verifique os parâmetros.';
   } catch (error: any) {
     console.error("Error calling Gemini API:", error);

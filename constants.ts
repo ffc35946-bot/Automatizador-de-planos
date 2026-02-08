@@ -1,4 +1,3 @@
-
 import type { Page, Integration, LogEntry } from './types';
 import { IntegrationPlatform, LogStatus } from './types';
 

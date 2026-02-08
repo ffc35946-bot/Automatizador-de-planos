@@ -1,4 +1,3 @@
-
 export type Page = 'dashboard' | 'integrations' | 'logs' | 'settings';
 
 export enum IntegrationPlatform {
@@ -19,6 +18,8 @@ export interface Integration {
   connected: boolean;
   logo: string;
   dashboardUrl?: string;
+  webhookSecret?: string;
+  apiToken?: string;
 }
 
 export interface LogEntry {

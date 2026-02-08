@@ -21,6 +21,7 @@ const Integrations: React.FC<IntegrationsProps> = ({ onHelpClick }) => {
   const [copied, setCopied] = useState(false);
   const [isTesting, setIsTesting] = useState(false);
   const [testResult, setTestResult] = useState<{success: boolean, message: string} | null>(null);
+  const [imageErrors, setImageErrors] = useState<Record<string, boolean>>({});
 
   useEffect(() => {
     const session = localStorage.getItem('saas_active_session');
@@ -32,13 +33,14 @@ const Integrations: React.FC<IntegrationsProps> = ({ onHelpClick }) => {
       const savedConfig = localStorage.getItem(`config_${userData.email}`);
       const savedMappings = localStorage.getItem(`mappings_${userData.email}`);
 
-      // Garante que a lista base sempre venha de INITIAL_INTEGRATIONS (com os links corretos)
-      // Mescla apenas o status de conexão do localStorage
       if (savedIntegrationsStr) {
           const saved: Integration[] = JSON.parse(savedIntegrationsStr);
           const merged = INITIAL_INTEGRATIONS.map(initial => {
               const savedItem = saved.find(s => s.platform === initial.platform);
-              return savedItem ? { ...initial, connected: savedItem.connected } : initial;
+              return { 
+                  ...initial, 
+                  connected: savedItem ? savedItem.connected : false 
+              };
           });
           setIntegrations(merged);
       } else {
@@ -114,40 +116,52 @@ const Integrations: React.FC<IntegrationsProps> = ({ onHelpClick }) => {
         <div className="space-y-6">
           <Card title="1. Checkouts Disponíveis" className="bg-card/40">
             <div className="grid grid-cols-1 gap-4">
-              {integrations.map((int) => (
-                <div key={int.platform} className="flex flex-col sm:flex-row items-center justify-between p-5 rounded-[1.5rem] bg-background/60 border border-white/5 group hover:border-primary/40 transition-all gap-4">
-                  <div className="flex items-center gap-4 w-full sm:w-auto">
-                    {/* Container da Logo - Fundo Branco de Alto Contraste */}
-                    <div className="w-16 h-16 bg-white rounded-2xl flex items-center justify-center p-2.5 shadow-xl shrink-0 overflow-hidden border border-white/20">
-                      <img 
-                        src={int.logo} 
-                        alt={int.platform} 
-                        className="max-h-full max-w-full object-contain"
-                        onError={(e) => {
-                          (e.target as HTMLImageElement).src = 'https://cdn-icons-png.flaticon.com/512/2165/2165004.png';
-                        }}
-                      />
-                    </div>
-                    <div>
-                      <span className="font-black text-white text-base block tracking-tight">{int.platform}</span>
-                      <div className="flex items-center gap-1.5 mt-1">
-                        <div className={`w-2 h-2 rounded-full ${int.connected ? 'bg-secondary' : 'bg-gray-600'}`}></div>
-                        <span className={`text-[10px] font-black uppercase tracking-widest ${int.connected ? 'text-secondary' : 'text-gray-500'}`}>
-                          {int.connected ? 'Conectado' : 'Desativado'}
-                        </span>
+              {integrations.map((int) => {
+                const isKiwify = int.platform === IntegrationPlatform.Kiwify;
+                
+                return (
+                  <div key={int.platform} className="flex flex-col sm:flex-row items-center justify-between p-5 rounded-[1.5rem] bg-background/60 border border-white/5 group hover:border-primary/40 transition-all gap-4">
+                    <div className="flex items-center gap-4 w-full sm:w-auto">
+                      {/* Container da Logo */}
+                      <div className="w-16 h-16 bg-white rounded-2xl flex items-center justify-center p-0 shadow-xl shrink-0 overflow-hidden border border-gray-100">
+                        {!imageErrors[int.platform] ? (
+                          <img 
+                            src={int.logo} 
+                            alt={int.platform} 
+                            className={`w-full h-full ${isKiwify ? 'object-contain p-3.5' : 'object-cover'}`}
+                            onLoad={() => console.log(`Loaded ${int.platform}`)}
+                            onError={() => {
+                              console.error(`Failed to load ${int.platform}`);
+                              setImageErrors(prev => ({ ...prev, [int.platform]: true }));
+                            }}
+                          />
+                        ) : (
+                          <div className="w-full h-full bg-gradient-to-br from-primary to-indigo-600 flex items-center justify-center">
+                            <span className="text-white font-black text-2xl uppercase">{int.platform.charAt(0)}</span>
+                          </div>
+                        )}
+                      </div>
+                      <div>
+                        <span className="font-black text-white text-base block tracking-tight">{int.platform}</span>
+                        <div className="flex items-center gap-1.5 mt-1">
+                          <div className={`w-2 h-2 rounded-full ${int.connected ? 'bg-secondary' : 'bg-gray-600'}`}></div>
+                          <span className={`text-[10px] font-black uppercase tracking-widest ${int.connected ? 'text-secondary' : 'text-gray-500'}`}>
+                            {int.connected ? 'Conectado' : 'Desativado'}
+                          </span>
+                        </div>
                       </div>
                     </div>
+                    <button 
+                      onClick={() => handleConnectClick(int)} 
+                      className={`w-full sm:w-auto px-8 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all shadow-lg ${
+                        int.connected ? 'bg-secondary/10 text-secondary border border-secondary/20 hover:bg-secondary/20' : 'bg-primary text-white hover:bg-indigo-500 shadow-primary/20'
+                      }`}
+                    >
+                      {int.connected ? 'Ajustes' : 'Configurar'}
+                    </button>
                   </div>
-                  <button 
-                    onClick={() => handleConnectClick(int)} 
-                    className={`w-full sm:w-auto px-8 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all shadow-lg ${
-                      int.connected ? 'bg-secondary/10 text-secondary border border-secondary/20 hover:bg-secondary/20' : 'bg-primary text-white hover:bg-indigo-500 shadow-primary/20'
-                    }`}
-                  >
-                    {int.connected ? 'Ajustes' : 'Configurar'}
-                  </button>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </Card>
 

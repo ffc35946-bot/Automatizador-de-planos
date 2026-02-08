@@ -15,19 +15,19 @@ export const INITIAL_INTEGRATIONS: Integration[] = [
     { 
       platform: IntegrationPlatform.Kirvano, 
       connected: false, 
-      logo: 'https://cdn.checkout.kirvano.com/assets/logo-kirvano.png',
+      logo: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTvIm9qIAIt6fZg-_JxglhK2D2mK2hfczDq6w&s',
       dashboardUrl: 'https://app.kirvano.com/'
     },
     { 
       platform: IntegrationPlatform.Cakto, 
       connected: false, 
-      logo: 'https://cakto.com.br/wp-content/uploads/2023/10/logo-cakto-preta.png',
+      logo: 'https://www.google.com/s2/favicons?domain=cakto.com.br&sz=128',
       dashboardUrl: 'https://cakto.com.br/'
     },
     { 
       platform: IntegrationPlatform.Kiwify, 
       connected: false, 
-      logo: 'https://kiwify.com.br/wp-content/uploads/2021/08/logo-kiwify.png',
+      logo: 'https://www.google.com/s2/favicons?domain=kiwify.com.br&sz=128',
       dashboardUrl: 'https://dashboard.kiwify.com.br/'
     },
     { 

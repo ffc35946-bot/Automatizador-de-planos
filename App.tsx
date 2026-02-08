@@ -17,7 +17,6 @@ const App: React.FC = () => {
   const [isInitializing, setIsInitializing] = useState(true);
 
   useEffect(() => {
-    // Verificar se existe sessão ativa
     const savedUser = localStorage.getItem('saas_active_session');
     if (savedUser) {
       setUser(JSON.parse(savedUser));
@@ -51,7 +50,12 @@ const App: React.FC = () => {
   };
 
   if (isInitializing) {
-    return <div className="min-h-screen bg-background flex items-center justify-center text-primary">Carregando...</div>;
+    return (
+      <div className="min-h-screen bg-background flex flex-col items-center justify-center gap-4">
+        <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
+        <span className="text-primary font-bold tracking-widest text-xs uppercase">Carregando Ecossistema</span>
+      </div>
+    );
   }
 
   if (!user) {
@@ -60,15 +64,15 @@ const App: React.FC = () => {
 
   return (
     <>
-      <div className="flex h-screen bg-background text-text-primary">
+      <div className="flex h-screen bg-background text-text-primary overflow-hidden">
         <Sidebar 
           currentPage={currentPage} 
           setCurrentPage={setCurrentPage}
           onHelpClick={() => setIsHelpModalOpen(true)}
           onLogout={handleLogout}
         />
-        <main className="flex-1 overflow-y-auto p-4 sm:p-6 md:p-8">
-          <div className="max-w-7xl mx-auto">
+        <main className="flex-1 overflow-y-auto custom-scrollbar md:pb-8 pb-24 px-4 sm:px-6 md:px-8">
+          <div className="max-w-7xl mx-auto pt-6 md:pt-10">
             {renderContent()}
           </div>
         </main>
@@ -76,7 +80,7 @@ const App: React.FC = () => {
       <Modal 
         isOpen={isHelpModalOpen} 
         onClose={() => setIsHelpModalOpen(false)} 
-        title="Guia de Configuração e Ajuda"
+        title="Manual do Proprietário"
       >
         <Tutorial />
       </Modal>

@@ -1,7 +1,6 @@
 
 import React from 'react';
 import { ResponsiveContainer, AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip } from 'recharts';
-import Card from './Card';
 import { MOCK_LOGS } from '../constants';
 import { LogStatus } from '../types';
 import { TrendingUp, CheckCircle, XCircle, Activity } from 'lucide-react';
@@ -32,80 +31,82 @@ const Dashboard: React.FC = () => {
 
   return (
     <div className="space-y-8 animate-fade-in">
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6">
         <div>
-          <h2 className="text-4xl font-extrabold text-white tracking-tight">Painel de Controle</h2>
-          <p className="text-text-secondary mt-1">Acompanhe a saúde das suas automações em tempo real.</p>
+          <h2 className="text-3xl md:text-4xl font-black text-white tracking-tight">Estatísticas</h2>
+          <p className="text-text-secondary mt-1 font-medium text-sm md:text-base">Métricas de ativação em tempo real.</p>
         </div>
-        <div className="bg-primary/10 border border-primary/20 px-4 py-2 rounded-full flex items-center gap-2 text-primary font-medium text-sm">
+        <div className="bg-primary/10 border border-primary/20 px-4 py-2 rounded-2xl flex items-center justify-center gap-2 text-primary font-bold text-xs uppercase tracking-widest w-fit">
           <Activity size={16} />
-          <span>Sistemas Operacionais</span>
+          <span>Servidor Ativo</span>
         </div>
       </div>
       
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <div className="bg-gradient-to-br from-sidebar to-card p-6 rounded-2xl border border-border/50 shadow-xl group hover:border-primary/50 transition-all duration-300">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-6">
+        <div className="bg-card/50 backdrop-blur-sm p-5 md:p-6 rounded-[2rem] border border-border shadow-xl hover:border-primary/30 transition-all duration-300">
           <div className="flex items-center justify-between mb-4">
-            <div className="p-2 bg-primary/20 rounded-lg text-primary"><TrendingUp size={24} /></div>
-            <span className="text-xs font-bold text-primary tracking-widest uppercase">Volume</span>
+            <div className="p-2 bg-primary/20 rounded-xl text-primary"><TrendingUp size={20} /></div>
           </div>
-          <p className="text-4xl font-bold text-white mb-1">{totalActivations}</p>
-          <p className="text-text-secondary text-sm">Total de Vendas</p>
+          <p className="text-2xl md:text-3xl font-black text-white mb-1">{totalActivations}</p>
+          <p className="text-text-secondary text-[10px] md:text-xs font-bold uppercase tracking-widest">Vendas</p>
         </div>
 
-        <div className="bg-gradient-to-br from-sidebar to-card p-6 rounded-2xl border border-border/50 shadow-xl group hover:border-secondary/50 transition-all duration-300">
+        <div className="bg-card/50 backdrop-blur-sm p-5 md:p-6 rounded-[2rem] border border-border shadow-xl hover:border-secondary/30 transition-all duration-300">
           <div className="flex items-center justify-between mb-4">
-            <div className="p-2 bg-secondary/20 rounded-lg text-secondary"><CheckCircle size={24} /></div>
-            <span className="text-xs font-bold text-secondary tracking-widest uppercase">Ativos</span>
+            <div className="p-2 bg-secondary/20 rounded-xl text-secondary"><CheckCircle size={20} /></div>
           </div>
-          <p className="text-4xl font-bold text-white mb-1">{successfulActivations}</p>
-          <p className="text-text-secondary text-sm">Sucessos na API</p>
+          <p className="text-2xl md:text-3xl font-black text-white mb-1">{successfulActivations}</p>
+          <p className="text-text-secondary text-[10px] md:text-xs font-bold uppercase tracking-widest">Ativos</p>
         </div>
 
-        <div className="bg-gradient-to-br from-sidebar to-card p-6 rounded-2xl border border-border/50 shadow-xl group hover:border-red-500/50 transition-all duration-300">
+        <div className="bg-card/50 backdrop-blur-sm p-5 md:p-6 rounded-[2rem] border border-border shadow-xl hover:border-red-500/30 transition-all duration-300">
           <div className="flex items-center justify-between mb-4">
-            <div className="p-2 bg-red-500/20 rounded-lg text-red-500"><XCircle size={24} /></div>
-            <span className="text-xs font-bold text-red-500 tracking-widest uppercase">Falhas</span>
+            <div className="p-2 bg-red-500/20 rounded-xl text-red-500"><XCircle size={20} /></div>
           </div>
-          <p className="text-4xl font-bold text-white mb-1">{failedActivations}</p>
-          <p className="text-text-secondary text-sm">Contas Inexistentes</p>
+          <p className="text-2xl md:text-3xl font-black text-white mb-1">{failedActivations}</p>
+          <p className="text-text-secondary text-[10px] md:text-xs font-bold uppercase tracking-widest">Falhas</p>
         </div>
 
-        <div className="bg-gradient-to-br from-sidebar to-card p-6 rounded-2xl border border-border/50 shadow-xl group hover:border-yellow-400/50 transition-all duration-300">
+        <div className="bg-card/50 backdrop-blur-sm p-5 md:p-6 rounded-[2rem] border border-border shadow-xl hover:border-yellow-400/30 transition-all duration-300">
           <div className="flex items-center justify-between mb-4">
-            <div className="p-2 bg-yellow-400/20 rounded-lg text-yellow-400"><Activity size={24} /></div>
-            <span className="text-xs font-bold text-yellow-400 tracking-widest uppercase">Saúde</span>
+            <div className="p-2 bg-yellow-400/20 rounded-xl text-yellow-400"><Activity size={20} /></div>
           </div>
-          <p className="text-4xl font-bold text-white mb-1">{successRate}%</p>
-          <p className="text-text-secondary text-sm">Taxa de Conversão</p>
+          <p className="text-2xl md:text-3xl font-black text-white mb-1">{successRate}%</p>
+          <p className="text-text-secondary text-[10px] md:text-xs font-bold uppercase tracking-widest">Saúde</p>
         </div>
       </div>
 
-      <div className="bg-card/40 backdrop-blur-md rounded-2xl border border-border/50 shadow-2xl p-6">
-        <div className="flex items-center justify-between mb-6">
-          <h3 className="text-xl font-bold text-white">Fluxo de Requisições</h3>
+      <div className="bg-card/30 backdrop-blur-md rounded-[2.5rem] border border-border shadow-2xl p-6 md:p-8">
+        <div className="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4">
+          <h3 className="text-xl font-black text-white">Gráfico de Performance</h3>
           <div className="flex gap-4">
-            <div className="flex items-center gap-2 text-xs"><div className="w-2 h-2 rounded-full bg-secondary"></div> Sucesso</div>
-            <div className="flex items-center gap-2 text-xs"><div className="w-2 h-2 rounded-full bg-red-500"></div> Falha</div>
+            <div className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-text-secondary">
+                <div className="w-2 h-2 rounded-full bg-secondary"></div> Sucessos
+            </div>
+            <div className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-text-secondary">
+                <div className="w-2 h-2 rounded-full bg-red-500"></div> Falhas
+            </div>
           </div>
         </div>
-        <div className="h-80 w-full">
+        <div className="h-64 md:h-80 w-full">
             <ResponsiveContainer>
-                <AreaChart data={chartData} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
+                <AreaChart data={chartData} margin={{ top: 0, right: 0, left: -20, bottom: 0 }}>
                     <defs>
                         <linearGradient id="colorSuccess" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor="#10b981" stopOpacity={0.3}/>
+                        <stop offset="5%" stopColor="#10b981" stopOpacity={0.2}/>
                         <stop offset="95%" stopColor="#10b981" stopOpacity={0}/>
                         </linearGradient>
                         <linearGradient id="colorFailed" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor="#ef4444" stopOpacity={0.3}/>
+                        <stop offset="5%" stopColor="#ef4444" stopOpacity={0.2}/>
                         <stop offset="95%" stopColor="#ef4444" stopOpacity={0}/>
                         </linearGradient>
                     </defs>
-                    <XAxis dataKey="name" stroke="#6b7280" fontSize={12} tickLine={false} axisLine={false} />
-                    <YAxis stroke="#6b7280" fontSize={12} tickLine={false} axisLine={false} />
-                    <CartesianGrid strokeDasharray="3 3" stroke="#374151" vertical={false} />
-                    <Tooltip contentStyle={{ backgroundColor: '#1f2937', border: '1px solid #4b5563', borderRadius: '12px' }} />
+                    <XAxis dataKey="name" stroke="#4b5563" fontSize={10} tickLine={false} axisLine={false} />
+                    <YAxis stroke="#4b5563" fontSize={10} tickLine={false} axisLine={false} />
+                    <Tooltip 
+                        contentStyle={{ backgroundColor: '#111827', border: '1px solid rgba(255,255,255,0.05)', borderRadius: '16px', fontSize: '12px' }} 
+                        itemStyle={{ fontWeight: 'bold' }}
+                    />
                     <Area type="monotone" dataKey="success" stroke="#10b981" strokeWidth={3} fillOpacity={1} fill="url(#colorSuccess)" />
                     <Area type="monotone" dataKey="failed" stroke="#ef4444" strokeWidth={3} fillOpacity={1} fill="url(#colorFailed)" />
                 </AreaChart>

@@ -1,6 +1,6 @@
 
-import React, { useState, useEffect } from 'react';
-import { Mail, Phone, Lock, UserPlus, LogIn, AlertCircle, CheckCircle2, LifeBuoy } from 'lucide-react';
+import React, { useState } from 'react';
+import { Mail, Phone, Lock, UserPlus, LogIn, AlertCircle, CheckCircle2, LifeBuoy, Zap, ShieldCheck } from 'lucide-react';
 import type { User } from '../types';
 
 interface AuthProps {
@@ -15,7 +15,6 @@ const Auth: React.FC<AuthProps> = ({ onLoginSuccess }) => {
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
 
-  // Simulação de banco de dados local
   const getUsers = (): User[] => {
     const users = localStorage.getItem('saas_users');
     return users ? JSON.parse(users) : [];
@@ -25,6 +24,13 @@ const Auth: React.FC<AuthProps> = ({ onLoginSuccess }) => {
     const users = getUsers();
     users.push(user);
     localStorage.setItem('saas_users', JSON.stringify(users));
+  };
+
+  const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value.replace(/\D/g, ''); // Remove tudo que não for dígito
+    if (value.length <= 11) {
+      setPhone(value);
+    }
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -37,69 +43,72 @@ const Auth: React.FC<AuthProps> = ({ onLoginSuccess }) => {
     if (isLogin) {
       const user = users.find(u => u.email === email && u.password === password);
       if (user) {
-        setSuccess('Login realizado com sucesso!');
-        setTimeout(() => onLoginSuccess(user), 1000);
+        setSuccess('Acesso concedido. Redirecionando...');
+        setTimeout(() => onLoginSuccess(user), 800);
       } else {
-        setError('E-mail ou senha incorretos.');
+        setError('Credenciais inválidas. Verifique os dados.');
       }
     } else {
-      // Cadastro
       if (!email || !phone || !password) {
-        setError('Por favor, preencha todos os campos.');
+        setError('Preencha todos os campos obrigatórios.');
         return;
       }
-
-      const emailExists = users.some(u => u.email === email);
-      if (emailExists) {
-        setError('Esta conta já existe. Tente fazer login.');
+      if (phone.length !== 11) {
+        setError('O telefone deve ter exatamente 11 dígitos (DDD + Número).');
         return;
       }
-
-      const newUser: User = { email, phone, password };
-      saveUser(newUser);
-      setSuccess('Conta criada com sucesso!');
-      setTimeout(() => {
-        setIsLogin(true);
-        setSuccess(null);
-      }, 1500);
+      if (users.some(u => u.email === email)) {
+        setError('Este e-mail já possui uma conta ativa.');
+        return;
+      }
+      saveUser({ email, phone, password });
+      setSuccess('Conta criada! Faça seu primeiro login.');
+      setTimeout(() => setIsLogin(true), 1200);
     }
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background p-4 font-sans">
-      <div className="w-full max-w-md animate-fade-in">
+    <div className="relative min-h-screen flex items-center justify-center p-4 bg-background overflow-hidden">
+      {/* Background Decorativo - Mesh Gradient */}
+      <div className="absolute top-0 left-0 w-full h-full overflow-hidden z-0 pointer-events-none">
+        <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-primary/20 rounded-full blur-[120px] animate-blob"></div>
+        <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-secondary/10 rounded-full blur-[120px] animate-blob animation-delay-2000"></div>
+        <div className="absolute top-[20%] right-[10%] w-[30%] h-[30%] bg-indigo-500/10 rounded-full blur-[100px] animate-blob animation-delay-4000"></div>
+      </div>
+
+      <div className="relative z-10 w-full max-w-[440px] animate-fade-in">
         <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center p-3 bg-primary/10 rounded-2xl mb-4">
+          <div className="inline-flex items-center justify-center p-4 bg-primary/10 rounded-xl mb-6 ring-1 ring-primary/20 shadow-inner">
             <LifeBuoy className="h-10 w-10 text-primary" />
           </div>
-          <h1 className="text-3xl font-black text-white tracking-tight">
-            Automatizador SaaS
+          <h1 className="text-4xl font-extrabold text-white tracking-tight mb-2">
+            Plan Automator
           </h1>
-          <p className="text-text-secondary mt-2">
-            {isLogin ? 'Bem-vindo de volta!' : 'Comece a automatizar suas vendas hoje.'}
+          <p className="text-text-secondary font-medium text-sm">
+            {isLogin ? 'Gerencie suas ativações automáticas' : 'Conecte seu checkout ao seu SaaS hoje'}
           </p>
         </div>
 
-        <div className="bg-card border border-border/50 rounded-3xl shadow-2xl p-8 backdrop-blur-sm">
+        <div className="glass rounded-3xl p-8 md:p-10 shadow-2xl border border-white/5 shadow-primary/5">
           <form onSubmit={handleSubmit} className="space-y-5">
             {error && (
-              <div className="bg-red-500/10 border border-red-500/20 text-red-500 p-4 rounded-xl flex items-center gap-3 animate-shake">
-                <AlertCircle size={20} />
-                <span className="text-sm font-medium">{error}</span>
+              <div className="bg-red-500/10 border border-red-500/20 text-red-400 p-4 rounded-xl flex items-center gap-3 animate-shake text-sm font-semibold">
+                <AlertCircle size={18} className="shrink-0" />
+                <span>{error}</span>
               </div>
             )}
 
             {success && (
-              <div className="bg-secondary/10 border border-secondary/20 text-secondary p-4 rounded-xl flex items-center gap-3">
-                <CheckCircle2 size={20} />
-                <span className="text-sm font-medium">{success}</span>
+              <div className="bg-secondary/10 border border-secondary/20 text-secondary p-4 rounded-xl flex items-center gap-3 text-sm font-semibold">
+                <CheckCircle2 size={18} className="shrink-0" />
+                <span>{success}</span>
               </div>
             )}
 
-            <div>
-              <label className="block text-xs font-bold text-text-secondary uppercase tracking-widest mb-2 px-1">E-mail</label>
-              <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-text-secondary">
+            <div className="space-y-1.5">
+              <label className="text-[10px] font-bold text-text-secondary uppercase tracking-[0.2em] ml-1">E-mail Corporativo</label>
+              <div className="relative group">
+                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-gray-500 group-focus-within:text-primary transition-colors">
                   <Mail size={18} />
                 </div>
                 <input
@@ -107,35 +116,40 @@ const Auth: React.FC<AuthProps> = ({ onLoginSuccess }) => {
                   required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="w-full bg-background border border-border/50 rounded-xl pl-11 pr-4 py-3.5 text-sm text-white focus:ring-2 focus:ring-primary outline-none transition-all placeholder:text-gray-600"
+                  className="w-full bg-background/40 border border-white/10 rounded-xl pl-12 pr-4 py-4 text-sm text-white focus:ring-2 focus:ring-primary/40 focus:border-primary/40 outline-none transition-all placeholder:text-gray-600 shadow-inner"
                   placeholder="exemplo@email.com"
                 />
               </div>
             </div>
 
             {!isLogin && (
-              <div className="animate-slide-down">
-                <label className="block text-xs font-bold text-text-secondary uppercase tracking-widest mb-2 px-1">WhatsApp / Telefone</label>
-                <div className="relative">
-                  <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-text-secondary">
+              <div className="space-y-1.5 animate-slide-down">
+                <label className="text-[10px] font-bold text-text-secondary uppercase tracking-[0.2em] ml-1">WhatsApp (apenas 11 dígitos)</label>
+                <div className="relative group">
+                  <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-gray-500 group-focus-within:text-primary transition-colors">
                     <Phone size={18} />
                   </div>
                   <input
                     type="tel"
                     required={!isLogin}
                     value={phone}
-                    onChange={(e) => setPhone(e.target.value)}
-                    className="w-full bg-background border border-border/50 rounded-xl pl-11 pr-4 py-3.5 text-sm text-white focus:ring-2 focus:ring-primary outline-none transition-all placeholder:text-gray-600"
-                    placeholder="(00) 00000-0000"
+                    onChange={handlePhoneChange}
+                    className="w-full bg-background/40 border border-white/10 rounded-xl pl-12 pr-4 py-4 text-sm text-white focus:ring-2 focus:ring-primary/40 focus:border-primary/40 outline-none transition-all placeholder:text-gray-600 shadow-inner"
+                    placeholder="11999999999"
                   />
+                  <div className="absolute inset-y-0 right-4 flex items-center pointer-events-none">
+                     <span className={`text-[10px] font-bold ${phone.length === 11 ? 'text-secondary' : 'text-gray-600'}`}>
+                        {phone.length}/11
+                     </span>
+                  </div>
                 </div>
               </div>
             )}
 
-            <div>
-              <label className="block text-xs font-bold text-text-secondary uppercase tracking-widest mb-2 px-1">Senha</label>
-              <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-text-secondary">
+            <div className="space-y-1.5">
+              <label className="text-[10px] font-bold text-text-secondary uppercase tracking-[0.2em] ml-1">Senha de Acesso</label>
+              <div className="relative group">
+                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-gray-500 group-focus-within:text-primary transition-colors">
                   <Lock size={18} />
                 </div>
                 <input
@@ -143,7 +157,7 @@ const Auth: React.FC<AuthProps> = ({ onLoginSuccess }) => {
                   required
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="w-full bg-background border border-border/50 rounded-xl pl-11 pr-4 py-3.5 text-sm text-white focus:ring-2 focus:ring-primary outline-none transition-all placeholder:text-gray-600"
+                  className="w-full bg-background/40 border border-white/10 rounded-xl pl-12 pr-4 py-4 text-sm text-white focus:ring-2 focus:ring-primary/40 focus:border-primary/40 outline-none transition-all placeholder:text-gray-600 shadow-inner"
                   placeholder="••••••••"
                 />
               </div>
@@ -151,42 +165,47 @@ const Auth: React.FC<AuthProps> = ({ onLoginSuccess }) => {
 
             <button
               type="submit"
-              className="w-full bg-primary hover:bg-indigo-500 text-white font-black py-4 rounded-xl shadow-lg shadow-primary/20 transition-all active:scale-95 flex items-center justify-center gap-2 mt-2"
+              className="w-full bg-primary hover:bg-indigo-500 text-white font-bold py-4 rounded-xl shadow-lg shadow-primary/10 transition-all active:scale-[0.98] flex items-center justify-center gap-3 mt-4 text-base tracking-tight"
             >
               {isLogin ? (
                 <>
+                  <span>Entrar Agora</span>
                   <LogIn size={20} />
-                  <span>Entrar no Painel</span>
                 </>
               ) : (
                 <>
-                  <UserPlus size={20} />
-                  <span>Criar Minha Conta</span>
+                  <span>Criar Conta</span>
+                  <Zap size={20} />
                 </>
               )}
             </button>
           </form>
 
-          <div className="mt-8 text-center">
-            <p className="text-sm text-text-secondary">
-              {isLogin ? 'Não tem uma conta?' : 'Já possui uma conta?'}
-              <button
-                onClick={() => {
-                  setIsLogin(!isLogin);
-                  setError(null);
-                  setSuccess(null);
-                }}
-                className="ml-2 text-primary font-bold hover:underline underline-offset-4"
-              >
-                {isLogin ? 'Cadastre-se' : 'Faça Login'}
-              </button>
-            </p>
+          <div className="mt-8 text-center pt-6 border-t border-white/5">
+            <button
+              onClick={() => {
+                setIsLogin(!isLogin);
+                setError(null);
+                setSuccess(null);
+              }}
+              className="text-sm text-text-secondary hover:text-white transition-colors flex items-center justify-center gap-2 mx-auto"
+            >
+              {isLogin ? (
+                <>Não possui acesso? <span className="text-primary font-bold hover:underline underline-offset-4 decoration-primary/30 transition-all">Começar Grátis</span></>
+              ) : (
+                <>Já é cadastrado? <span className="text-primary font-bold hover:underline underline-offset-4 decoration-primary/30 transition-all">Fazer Login</span></>
+              )}
+            </button>
           </div>
         </div>
 
-        <p className="text-center text-[10px] text-gray-500 mt-8 uppercase tracking-widest font-medium opacity-50">
-          &copy; 2026 Automatizador de Planos SaaS • Seguro & Encriptado
-        </p>
+        <div className="mt-10 flex flex-col items-center justify-center gap-4 opacity-40">
+          <div className="flex items-center gap-2 text-[9px] font-bold text-white uppercase tracking-[0.3em]">
+            <ShieldCheck size={14} className="text-secondary" />
+            Infraestrutura Segura • SSL 256-BIT
+          </div>
+          <p className="text-[9px] font-medium text-gray-500">© 2026 Plan Automator - Todos os direitos reservados</p>
+        </div>
       </div>
     </div>
   );

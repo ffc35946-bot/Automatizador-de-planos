@@ -15,7 +15,7 @@ export const INITIAL_INTEGRATIONS: Integration[] = [
     { 
       platform: IntegrationPlatform.Kirvano, 
       connected: false, 
-      logo: 'https://cdn.checkout.kirvano.com/assets/logo-kirvano.png', // Logo oficial ou estável
+      logo: 'https://cdn.checkout.kirvano.com/assets/logo-kirvano.png',
       dashboardUrl: 'https://app.kirvano.com/'
     },
     { 

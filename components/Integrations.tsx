@@ -32,8 +32,8 @@ const Integrations: React.FC<IntegrationsProps> = ({ onHelpClick }) => {
       const savedConfig = localStorage.getItem(`config_${userData.email}`);
       const savedMappings = localStorage.getItem(`mappings_${userData.email}`);
 
-      // Lógica crucial: Sempre usa INITIAL_INTEGRATIONS para garantir que nada suma.
-      // Apenas atualiza o status 'connected' a partir do que estiver salvo.
+      // Garante que a lista base sempre venha de INITIAL_INTEGRATIONS (com os links corretos)
+      // Mescla apenas o status de conexão do localStorage
       if (savedIntegrationsStr) {
           const saved: Integration[] = JSON.parse(savedIntegrationsStr);
           const merged = INITIAL_INTEGRATIONS.map(initial => {
@@ -117,6 +117,7 @@ const Integrations: React.FC<IntegrationsProps> = ({ onHelpClick }) => {
               {integrations.map((int) => (
                 <div key={int.platform} className="flex flex-col sm:flex-row items-center justify-between p-5 rounded-[1.5rem] bg-background/60 border border-white/5 group hover:border-primary/40 transition-all gap-4">
                   <div className="flex items-center gap-4 w-full sm:w-auto">
+                    {/* Container da Logo - Fundo Branco de Alto Contraste */}
                     <div className="w-16 h-16 bg-white rounded-2xl flex items-center justify-center p-2.5 shadow-xl shrink-0 overflow-hidden border border-white/20">
                       <img 
                         src={int.logo} 

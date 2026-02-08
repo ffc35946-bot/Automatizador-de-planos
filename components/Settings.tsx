@@ -1,31 +1,202 @@
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import Card from './Card';
+import { User as UserIcon, Phone, Mail, Lock, ShieldCheck, Save, CheckCircle, Bell, Laptop } from 'lucide-react';
+import type { User } from '../types';
 
 const Settings: React.FC = () => {
+  const [user, setUser] = useState<User | null>(null);
+  const [name, setName] = useState('');
+  const [phone, setPhone] = useState('');
+  const [currentPassword, setCurrentPassword] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [isSaving, setIsSaving] = useState(false);
+  const [message, setMessage] = useState<{type: 'success' | 'error', text: string} | null>(null);
+
+  useEffect(() => {
+    const session = localStorage.getItem('saas_active_session');
+    if (session) {
+      const userData = JSON.parse(session);
+      setUser(userData);
+      setName(userData.name || '');
+      setPhone(userData.phone || '');
+    }
+  }, []);
+
+  const handleUpdateProfile = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!user) return;
+    
+    setIsSaving(true);
+    setMessage(null);
+
+    const updatedUser = { ...user, name, phone };
+    
+    // Atualiza lista global de usuários
+    const allUsers = JSON.parse(localStorage.getItem('saas_users') || '[]');
+    const updatedUsersList = allUsers.map((u: User) => u.email === user.email ? updatedUser : u);
+    localStorage.setItem('saas_users', JSON.stringify(updatedUsersList));
+    
+    // Atualiza sessão ativa
+    localStorage.setItem('saas_active_session', JSON.stringify(updatedUser));
+    setUser(updatedUser);
+
+    setTimeout(() => {
+      setIsSaving(false);
+      setMessage({ type: 'success', text: 'Perfil atualizado com sucesso!' });
+    }, 800);
+  };
+
+  const handleChangePassword = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!user) return;
+
+    if (currentPassword !== user.password) {
+      setMessage({ type: 'error', text: 'Senha atual incorreta.' });
+      return;
+    }
+
+    const updatedUser = { ...user, password: newPassword };
+    const allUsers = JSON.parse(localStorage.getItem('saas_users') || '[]');
+    const updatedUsersList = allUsers.map((u: User) => u.email === user.email ? updatedUser : u);
+    localStorage.setItem('saas_users', JSON.stringify(updatedUsersList));
+    localStorage.setItem('saas_active_session', JSON.stringify(updatedUser));
+    setUser(updatedUser);
+    
+    setCurrentPassword('');
+    setNewPassword('');
+    setMessage({ type: 'success', text: 'Senha alterada com sucesso!' });
+  };
+
   return (
-    <div className="space-y-8">
-      <h2 className="text-3xl font-bold text-text-primary">Configurações</h2>
-      <Card title="Preferências de Notificação">
-        <div className="space-y-4 text-text-secondary">
-          <div className="flex items-center justify-between">
-            <label htmlFor="email-notifications">Notificações por e-mail para ativações com falha</label>
-            <input type="checkbox" id="email-notifications" className="toggle-checkbox" />
-          </div>
-          <div className="flex items-center justify-between">
-            <label htmlFor="slack-notifications">Notificações via Slack para todas as ativações</label>
-            <input type="checkbox" id="slack-notifications" className="toggle-checkbox" checked />
+    <div className="space-y-8 animate-fade-in pb-20">
+      <div>
+        <h2 className="text-3xl font-black text-white tracking-tight">Configurações</h2>
+        <p className="text-text-secondary mt-1">Gerencie sua conta e preferências de segurança.</p>
+      </div>
+
+      {message && (
+        <div className={`p-4 rounded-2xl border flex items-center gap-3 animate-slide-down ${message.type === 'success' ? 'bg-secondary/10 border-secondary/20 text-secondary' : 'bg-red-500/10 border-red-500/20 text-red-400'}`}>
+          {message.type === 'success' ? <CheckCircle size={20} /> : <ShieldCheck size={20} />}
+          <span className="text-sm font-bold">{message.text}</span>
+        </div>
+      )}
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        {/* Perfil */}
+        <div className="space-y-8">
+          <Card title="Dados do Perfil" className="bg-card/40 border-border/50">
+            <form onSubmit={handleUpdateProfile} className="space-y-5">
+              <div className="space-y-1.5">
+                <label className="text-[10px] font-bold text-text-secondary uppercase tracking-widest ml-1">Nome Completo</label>
+                <div className="relative group">
+                  <div className="absolute inset-y-0 left-0 pl-4 flex items-center text-gray-500"><UserIcon size={18} /></div>
+                  <input 
+                    type="text" 
+                    value={name} 
+                    onChange={(e) => setName(e.target.value)}
+                    className="w-full bg-background/50 border border-white/10 rounded-xl pl-11 py-3 text-sm text-white focus:ring-2 focus:ring-primary outline-none transition-all"
+                  />
+                </div>
+              </div>
+              <div className="space-y-1.5 opacity-60">
+                <label className="text-[10px] font-bold text-text-secondary uppercase tracking-widest ml-1">E-mail (Não editável)</label>
+                <div className="relative">
+                  <div className="absolute inset-y-0 left-0 pl-4 flex items-center text-gray-500"><Mail size={18} /></div>
+                  <input type="text" readOnly value={user?.email || ''} className="w-full bg-background/30 border border-white/5 rounded-xl pl-11 py-3 text-sm text-gray-500 outline-none" />
+                </div>
+              </div>
+              <div className="space-y-1.5">
+                <label className="text-[10px] font-bold text-text-secondary uppercase tracking-widest ml-1">WhatsApp</label>
+                <div className="relative group">
+                  <div className="absolute inset-y-0 left-0 pl-4 flex items-center text-gray-500"><Phone size={18} /></div>
+                  <input 
+                    type="tel" 
+                    value={phone} 
+                    onChange={(e) => setPhone(e.target.value.replace(/\D/g, ''))}
+                    className="w-full bg-background/50 border border-white/10 rounded-xl pl-11 py-3 text-sm text-white focus:ring-2 focus:ring-primary outline-none transition-all"
+                  />
+                </div>
+              </div>
+              <button 
+                type="submit" 
+                disabled={isSaving}
+                className="w-full bg-primary hover:bg-indigo-500 text-white font-bold py-3.5 rounded-xl shadow-lg transition-all flex items-center justify-center gap-2"
+              >
+                {isSaving ? "Salvando..." : "Salvar Alterações"}
+                <Save size={18} />
+              </button>
+            </form>
+          </Card>
+
+          <Card title="Preferências" className="bg-card/40 border-border/50">
+            <div className="space-y-4">
+              <div className="flex items-center justify-between p-3 bg-background/30 rounded-xl border border-white/5">
+                <div className="flex items-center gap-3">
+                  <Bell size={18} className="text-primary" />
+                  <span className="text-sm font-medium text-white">Alertas de Falha no Telegram</span>
+                </div>
+                <input type="checkbox" className="w-5 h-5 accent-primary" />
+              </div>
+              <div className="flex items-center justify-between p-3 bg-background/30 rounded-xl border border-white/5">
+                <div className="flex items-center gap-3">
+                  <Laptop size={18} className="text-secondary" />
+                  <span className="text-sm font-medium text-white">Modo Desenvolvedor (Logs Verbosos)</span>
+                </div>
+                <input type="checkbox" className="w-5 h-5 accent-secondary" />
+              </div>
+            </div>
+          </Card>
+        </div>
+
+        {/* Segurança */}
+        <div className="space-y-8">
+          <Card title="Alterar Senha" className="bg-card/40 border-border/50">
+            <form onSubmit={handleChangePassword} className="space-y-5">
+              <div className="space-y-1.5">
+                <label className="text-[10px] font-bold text-text-secondary uppercase tracking-widest ml-1">Senha Atual</label>
+                <div className="relative">
+                  <div className="absolute inset-y-0 left-0 pl-4 flex items-center text-gray-500"><Lock size={18} /></div>
+                  <input 
+                    type="password" 
+                    required
+                    value={currentPassword}
+                    onChange={(e) => setCurrentPassword(e.target.value)}
+                    className="w-full bg-background/50 border border-white/10 rounded-xl pl-11 py-3 text-sm text-white focus:ring-2 focus:ring-primary outline-none transition-all"
+                  />
+                </div>
+              </div>
+              <div className="space-y-1.5">
+                <label className="text-[10px] font-bold text-text-secondary uppercase tracking-widest ml-1">Nova Senha</label>
+                <div className="relative">
+                  <div className="absolute inset-y-0 left-0 pl-4 flex items-center text-gray-500"><ShieldCheck size={18} /></div>
+                  <input 
+                    type="password" 
+                    required
+                    value={newPassword}
+                    onChange={(e) => setNewPassword(e.target.value)}
+                    className="w-full bg-background/50 border border-white/10 rounded-xl pl-11 py-3 text-sm text-white focus:ring-2 focus:ring-primary outline-none transition-all"
+                  />
+                </div>
+              </div>
+              <button type="submit" className="w-full bg-sidebar border border-border/50 hover:bg-card text-white font-bold py-3.5 rounded-xl transition-all">
+                Atualizar Senha
+              </button>
+            </form>
+          </Card>
+
+          <div className="p-6 bg-red-500/5 border border-red-500/20 rounded-3xl space-y-4">
+             <div className="flex items-center gap-3 text-red-400">
+               <ShieldCheck size={24} />
+               <h3 className="font-bold">Zona de Perigo</h3>
+             </div>
+             <p className="text-xs text-red-400/70 leading-relaxed">Excluir sua conta removerá todos os logs de integração e configurações permanentemente. Esta ação não pode ser desfeita.</p>
+             <button className="text-[10px] font-black uppercase tracking-widest text-red-500 hover:underline">Excluir Minha Conta</button>
           </div>
         </div>
-      </Card>
-      <Card title="Informações da Conta">
-        <p className="text-text-secondary">
-            Configurações da conta e informações de faturamento estarão disponíveis aqui em uma futura atualização.
-        </p>
-      </Card>
+      </div>
     </div>
   );
 };
 
 export default Settings;
-   

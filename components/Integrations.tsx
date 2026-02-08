@@ -85,55 +85,55 @@ const Integrations: React.FC<IntegrationsProps> = ({ onHelpClick }) => {
 
   return (
     <div className="space-y-6 md:space-y-8 animate-fade-in pb-24">
-      <div className="flex items-center justify-between gap-4">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
            <h2 className="text-3xl font-black text-white tracking-tight">Canais</h2>
            <p className="text-sm text-text-secondary mt-1 font-medium">Conecte seus checkouts ao seu sistema.</p>
         </div>
         <button 
           onClick={onHelpClick}
-          className="bg-yellow-500/10 text-yellow-500 p-3 md:px-5 md:py-3 rounded-2xl border border-yellow-500/20 font-black uppercase tracking-widest transition-all hover:bg-yellow-500/20 active:scale-95 flex items-center gap-2"
+          className="bg-yellow-500/10 text-yellow-500 px-5 py-3 rounded-2xl border border-yellow-500/20 font-black uppercase tracking-widest transition-all hover:bg-yellow-500/20 active:scale-95 flex items-center justify-center gap-2"
         >
           <HelpCircle size={20} />
-          <span className="hidden md:inline text-[11px]">Ajuda</span>
+          <span className="text-[11px]">Guia de Ajuda</span>
         </button>
       </div>
       
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 md:gap-8">
         <div className="space-y-6">
           <Card title="1. Checkouts Disponíveis" className="bg-card/40">
-            <div className="grid grid-cols-1 gap-3">
+            <div className="grid grid-cols-1 gap-4">
               {integrations.map((int) => (
-                <div key={int.platform} className="flex items-center justify-between p-4 rounded-2xl bg-background/60 border border-white/5 group hover:border-primary/40 transition-all">
-                  <div className="flex items-center gap-4">
-                    {/* Container da Logo - Branco para contraste */}
-                    <div className="w-14 h-14 bg-white rounded-xl flex items-center justify-center p-2 shadow-inner shrink-0 overflow-hidden border border-white/20">
+                <div key={int.platform} className="flex flex-col sm:flex-row items-center justify-between p-5 rounded-[1.5rem] bg-background/60 border border-white/5 group hover:border-primary/40 transition-all gap-4">
+                  <div className="flex items-center gap-4 w-full sm:w-auto">
+                    {/* Container da Logo - Restaurado com Fundo Branco e Sombra */}
+                    <div className="w-16 h-16 bg-white rounded-2xl flex items-center justify-center p-2.5 shadow-xl shrink-0 overflow-hidden border border-white/20">
                       <img 
                         src={int.logo} 
                         alt={int.platform} 
-                        className="max-h-full max-w-full object-contain filter"
+                        className="max-h-full max-w-full object-contain"
                         onError={(e) => {
                           (e.target as HTMLImageElement).src = 'https://cdn-icons-png.flaticon.com/512/2165/2165004.png';
                         }}
                       />
                     </div>
                     <div>
-                      <span className="font-bold text-white text-sm block">{int.platform}</span>
-                      <div className="flex items-center gap-1.5 mt-0.5">
-                        <div className={`w-1.5 h-1.5 rounded-full ${int.connected ? 'bg-secondary' : 'bg-gray-600'}`}></div>
-                        <span className={`text-[9px] font-black uppercase tracking-widest ${int.connected ? 'text-secondary' : 'text-gray-500'}`}>
-                          {int.connected ? 'Ativo' : 'Inativo'}
+                      <span className="font-black text-white text-base block tracking-tight">{int.platform}</span>
+                      <div className="flex items-center gap-1.5 mt-1">
+                        <div className={`w-2 h-2 rounded-full ${int.connected ? 'bg-secondary' : 'bg-gray-600'}`}></div>
+                        <span className={`text-[10px] font-black uppercase tracking-widest ${int.connected ? 'text-secondary' : 'text-gray-500'}`}>
+                          {int.connected ? 'Conectado' : 'Aguardando'}
                         </span>
                       </div>
                     </div>
                   </div>
                   <button 
                     onClick={() => handleConnectClick(int)} 
-                    className={`px-6 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-wider transition-all ${
-                      int.connected ? 'bg-secondary/10 text-secondary border border-secondary/20 hover:bg-secondary/20' : 'bg-primary text-white shadow-lg shadow-primary/20 hover:bg-indigo-500'
+                    className={`w-full sm:w-auto px-8 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all shadow-lg ${
+                      int.connected ? 'bg-secondary/10 text-secondary border border-secondary/20 hover:bg-secondary/20' : 'bg-primary text-white hover:bg-indigo-500 shadow-primary/20'
                     }`}
                   >
-                    {int.connected ? 'Gerenciar' : 'Conectar'}
+                    {int.connected ? 'Ajustes' : 'Configurar'}
                   </button>
                 </div>
               ))}
@@ -141,30 +141,30 @@ const Integrations: React.FC<IntegrationsProps> = ({ onHelpClick }) => {
           </Card>
 
           <Card title="2. Seu Endpoint (SaaS)" className="bg-card/40">
-            <div className="space-y-4">
-              <div className="space-y-1.5">
-                <label className="text-[10px] font-bold text-text-secondary uppercase tracking-widest ml-1">URL de Ativação</label>
+            <div className="space-y-5">
+              <div className="space-y-2">
+                <label className="text-[10px] font-black text-text-secondary uppercase tracking-[0.2em] ml-1">URL da sua API</label>
                 <div className="relative">
                   <input 
                     type="text" 
                     value={saasConfig.endpoint} 
                     onChange={(e) => setSaasConfig({...saasConfig, endpoint: e.target.value})} 
-                    className="w-full bg-background border border-white/10 rounded-xl px-4 py-3.5 text-xs text-white focus:ring-2 focus:ring-primary outline-none transition-all pr-12" 
-                    placeholder="https://seu-saas.com/api/activate" 
+                    className="w-full bg-background border border-white/10 rounded-xl px-5 py-4 text-xs text-white focus:ring-2 focus:ring-primary outline-none transition-all pr-12 font-medium" 
+                    placeholder="https://seu-saas.com/api/webhooks" 
                   />
-                  <Globe className="absolute right-4 top-3.5 text-gray-500" size={18} />
+                  <Globe className="absolute right-4 top-4 text-gray-600" size={18} />
                 </div>
               </div>
               <button 
                 onClick={runTestIntegration} 
                 disabled={isTesting || !saasConfig.endpoint} 
-                className="w-full flex items-center justify-center gap-2 bg-sidebar border border-border/50 rounded-xl py-3.5 text-[11px] font-black text-white hover:bg-card transition-all uppercase tracking-widest"
+                className="w-full flex items-center justify-center gap-3 bg-sidebar border border-border/50 rounded-xl py-4 text-[11px] font-black text-white hover:bg-card transition-all uppercase tracking-widest shadow-inner active:scale-[0.98]"
               >
-                {isTesting ? <Loader2 size={16} className="animate-spin" /> : <Play size={16} />}
-                Testar Endpoint
+                {isTesting ? <Loader2 size={16} className="animate-spin" /> : <Play size={16} className="text-primary" />}
+                Testar Conexão
               </button>
               {testResult && (
-                <div className={`p-4 rounded-xl text-[10px] font-black border uppercase tracking-widest animate-slide-down ${testResult.success ? 'bg-secondary/10 border-secondary/20 text-secondary' : 'bg-red-500/10 border-red-500/20 text-red-400'}`}>
+                <div className={`p-4 rounded-xl text-[11px] font-black border uppercase tracking-[0.1em] text-center animate-fade-in ${testResult.success ? 'bg-secondary/10 border-secondary/20 text-secondary' : 'bg-red-500/10 border-red-500/20 text-red-400'}`}>
                   {testResult.message}
                 </div>
               )}
@@ -172,52 +172,69 @@ const Integrations: React.FC<IntegrationsProps> = ({ onHelpClick }) => {
           </Card>
         </div>
 
-        <Card title="3. Regras de Conversão" className="bg-card/40 h-full flex flex-col">
-          <div className="flex-grow space-y-3 overflow-y-auto max-h-[350px] pr-2 custom-scrollbar mb-6">
+        <Card title="3. Mapeamento de Planos" className="bg-card/40 flex flex-col min-h-[500px]">
+          <div className="flex-grow space-y-4 overflow-y-auto max-h-[400px] pr-2 custom-scrollbar mb-6">
             {planMappings.length === 0 ? (
-              <div className="py-12 text-center opacity-20">
-                <LayoutGrid size={40} className="mx-auto mb-3" />
-                <p className="text-[10px] font-black uppercase tracking-[0.2em]">Sem regras</p>
+              <div className="py-16 text-center opacity-20 flex flex-col items-center">
+                <LayoutGrid size={48} className="mb-4" />
+                <p className="text-[11px] font-black uppercase tracking-[0.3em]">Nenhuma regra definida</p>
+                <p className="text-[10px] mt-2 normal-case">Clique abaixo para converter IDs de checkout em planos.</p>
               </div>
             ) : (
               planMappings.map((m) => (
-                <div key={m.id} className="flex items-center gap-2 bg-background/50 p-3 rounded-xl border border-white/5">
-                  <input type="text" value={m.checkoutId} onChange={(e) => setPlanMappings(planMappings.map(x => x.id === m.id ? {...x, checkoutId: e.target.value} : x))} className="flex-1 bg-background border border-white/5 rounded-lg px-3 py-2 text-xs text-white placeholder:text-gray-700" placeholder="ID Checkout" />
-                  <ArrowRightLeft size={12} className="text-gray-600" />
-                  <input type="text" value={m.saasPlan} onChange={(e) => setPlanMappings(planMappings.map(x => x.id === m.id ? {...x, saasPlan: e.target.value} : x))} className="flex-1 bg-background border border-white/5 rounded-lg px-3 py-2 text-xs text-white placeholder:text-gray-700" placeholder="Plano SaaS" />
-                  <button onClick={() => setPlanMappings(planMappings.filter(x => x.id !== m.id))} className="text-red-500/40 hover:text-red-500 transition-colors p-1"><Trash2 size={16} /></button>
+                <div key={m.id} className="flex flex-col sm:flex-row items-center gap-3 bg-background/50 p-4 rounded-2xl border border-white/5 group relative">
+                  <div className="w-full sm:flex-1 space-y-1">
+                    <span className="text-[9px] font-black uppercase text-gray-600 tracking-widest ml-1">ID Checkout</span>
+                    <input type="text" value={m.checkoutId} onChange={(e) => setPlanMappings(planMappings.map(x => x.id === m.id ? {...x, checkoutId: e.target.value} : x))} className="w-full bg-background border border-white/5 rounded-xl px-4 py-2.5 text-xs text-white placeholder:text-gray-700 focus:border-primary/40 outline-none transition-all" placeholder="Ex: prod_99" />
+                  </div>
+                  <div className="hidden sm:block mt-5">
+                    <ArrowRightLeft size={16} className="text-primary/40" />
+                  </div>
+                  <div className="w-full sm:flex-1 space-y-1">
+                    <span className="text-[9px] font-black uppercase text-gray-600 tracking-widest ml-1">Nome no SaaS</span>
+                    <input type="text" value={m.saasPlan} onChange={(e) => setPlanMappings(planMappings.map(x => x.id === m.id ? {...x, saasPlan: e.target.value} : x))} className="w-full bg-background border border-white/5 rounded-xl px-4 py-2.5 text-xs text-white placeholder:text-gray-700 focus:border-primary/40 outline-none transition-all" placeholder="Ex: Plano VIP" />
+                  </div>
+                  <button onClick={() => setPlanMappings(planMappings.filter(x => x.id !== m.id))} className="absolute -top-2 -right-2 sm:static bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white transition-all p-2 rounded-lg border border-red-500/20"><Trash2 size={16} /></button>
                 </div>
               ))
             )}
-            <button onClick={() => setPlanMappings([...planMappings, {id: Date.now(), checkoutId: '', saasPlan: ''}])} className="w-full py-4 border-2 border-dashed border-white/5 rounded-xl text-text-secondary hover:text-primary hover:border-primary/30 transition-all flex items-center justify-center gap-2">
-              <Plus size={18} />
-              <span className="text-[10px] font-black uppercase tracking-widest">Nova Regra</span>
+            <button onClick={() => setPlanMappings([...planMappings, {id: Date.now(), checkoutId: '', saasPlan: ''}])} className="w-full py-5 border-2 border-dashed border-white/5 rounded-[1.5rem] text-text-secondary hover:text-primary hover:border-primary/40 transition-all flex items-center justify-center gap-3 group">
+              <Plus size={20} className="group-hover:rotate-90 transition-transform" />
+              <span className="text-[11px] font-black uppercase tracking-widest">Adicionar Nova Regra</span>
             </button>
           </div>
-          <button onClick={handleSaveAll} className="w-full bg-primary hover:bg-indigo-500 text-white font-black py-4 rounded-xl shadow-xl transition-all uppercase tracking-widest text-xs">
-            Salvar Tudo
+          <button onClick={handleSaveAll} className="w-full bg-primary hover:bg-indigo-500 text-white font-black py-5 rounded-2xl shadow-2xl shadow-primary/20 transition-all uppercase tracking-[0.2em] text-xs active:scale-[0.98]">
+            Salvar Configurações
           </button>
         </Card>
       </div>
 
-      <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title={selectedIntegration?.platform || 'Plataforma'}>
+      <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title={`Conectar ${selectedIntegration?.platform}`}>
         <div className="space-y-6">
-          <p className="text-xs text-text-secondary leading-relaxed bg-white/5 p-4 rounded-2xl border border-white/5">
-            Copie a URL abaixo e cole no campo <strong>URL de Webhook</strong> da sua conta {selectedIntegration?.platform}.
-          </p>
-          <div className="flex items-center gap-3 bg-background p-4 rounded-2xl border border-white/10">
-            <code className="flex-1 text-[10px] font-mono text-primary truncate">{WEBHOOK_URL}</code>
-            <button onClick={handleCopy} className="p-2 hover:bg-white/5 rounded-lg transition-all shrink-0">
-              {copied ? <Check size={18} className="text-secondary" /> : <Copy size={18} className="text-gray-400" />}
-            </button>
+          <div className="bg-primary/5 p-5 rounded-2xl border border-primary/20 space-y-3">
+            <h4 className="text-xs font-black text-primary uppercase tracking-widest">Instruções</h4>
+            <p className="text-[11px] text-text-secondary leading-relaxed">
+              Copie a URL abaixo e cole no campo <strong>URL de Webhook</strong> da sua conta {selectedIntegration?.platform}. Ative o evento de "Compra Aprovada".
+            </p>
           </div>
+          
+          <div className="space-y-2">
+            <span className="text-[9px] font-black text-gray-600 uppercase tracking-widest ml-1">Seu Link Exclusivo</span>
+            <div className="flex items-center gap-3 bg-background p-5 rounded-2xl border border-white/10 shadow-inner">
+              <code className="flex-1 text-[11px] font-mono text-primary truncate">{WEBHOOK_URL}</code>
+              <button onClick={handleCopy} className="p-3 bg-white/5 hover:bg-primary/10 rounded-xl transition-all shrink-0 border border-white/5">
+                {copied ? <Check size={18} className="text-secondary" /> : <Copy size={18} className="text-gray-400" />}
+              </button>
+            </div>
+          </div>
+
           <button 
             onClick={handleToggleConnection} 
-            className={`w-full py-4 rounded-2xl font-black uppercase tracking-widest text-xs transition-all ${
-              selectedIntegration?.connected ? 'bg-red-500/10 text-red-500 border border-red-500/20' : 'bg-primary text-white'
+            className={`w-full py-5 rounded-2xl font-black uppercase tracking-widest text-[11px] transition-all shadow-xl ${
+              selectedIntegration?.connected ? 'bg-red-500/10 text-red-500 border border-red-500/20 hover:bg-red-500 hover:text-white' : 'bg-primary text-white hover:bg-indigo-500'
             }`}
           >
-            {selectedIntegration?.connected ? 'Desativar Canal' : 'Ativar Agora'}
+            {selectedIntegration?.connected ? 'Desativar Este Canal' : 'Ativar Agora'}
           </button>
         </div>
       </Modal>

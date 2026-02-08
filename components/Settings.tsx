@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import Card from './Card';
-import { User as UserIcon, Phone, Mail, Lock, ShieldCheck, Save, CheckCircle, Bell, Laptop, AlertTriangle } from 'lucide-react';
+import { User as UserIcon, Phone, Mail, Lock, ShieldCheck, Save, CheckCircle, Bell, Laptop, AlertTriangle, ArrowLeft } from 'lucide-react';
 import type { User } from '../types';
 
 const Settings: React.FC = () => {
@@ -12,6 +12,10 @@ const Settings: React.FC = () => {
   const [newPassword, setNewPassword] = useState('');
   const [isSaving, setIsSaving] = useState(false);
   const [message, setMessage] = useState<{type: 'success' | 'error', text: string} | null>(null);
+  
+  // Estados para exclusão de conta
+  const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
+  const [deleteInput, setDeleteInput] = useState('');
 
   useEffect(() => {
     const session = localStorage.getItem('saas_active_session');
@@ -66,32 +70,77 @@ const Settings: React.FC = () => {
     setMessage({ type: 'success', text: 'Senha alterada com sucesso!' });
   };
 
-  const handleDeleteAccount = () => {
-    if (!user) return;
+  const executeAccountDeletion = () => {
+    if (!user || deleteInput !== 'EXCLUIR') return;
 
-    const confirmDelete = window.confirm(
-      "ATENÇÃO: Esta ação é irreversível!\n\nTodos os seus logs, integrações e configurações serão apagados permanentemente. Deseja continuar?"
-    );
+    // 1. Remover do array global de usuários
+    const allUsers = JSON.parse(localStorage.getItem('saas_users') || '[]');
+    const updatedUsers = allUsers.filter((u: User) => u.email !== user.email);
+    localStorage.setItem('saas_users', JSON.stringify(updatedUsers));
 
-    if (confirmDelete) {
-      // 1. Remover do array global de usuários
-      const allUsers = JSON.parse(localStorage.getItem('saas_users') || '[]');
-      const updatedUsers = allUsers.filter((u: User) => u.email !== user.email);
-      localStorage.setItem('saas_users', JSON.stringify(updatedUsers));
+    // 2. Limpar dados específicos do usuário
+    localStorage.removeItem(`logs_${user.email}`);
+    localStorage.removeItem(`integrations_${user.email}`);
+    localStorage.removeItem(`config_${user.email}`);
+    localStorage.removeItem(`mappings_${user.email}`);
 
-      // 2. Limpar dados específicos do usuário
-      localStorage.removeItem(`logs_${user.email}`);
-      localStorage.removeItem(`integrations_${user.email}`);
-      localStorage.removeItem(`config_${user.email}`);
-      localStorage.removeItem(`mappings_${user.email}`);
-
-      // 3. Encerrar sessão
-      localStorage.removeItem('saas_active_session');
-      
-      // 4. Recarregar app para voltar ao login
-      window.location.reload();
-    }
+    // 3. Encerrar sessão
+    localStorage.removeItem('saas_active_session');
+    
+    // 4. Recarregar app para voltar ao login
+    window.location.reload();
   };
+
+  if (showDeleteConfirmation) {
+    return (
+      <div className="min-h-[70vh] flex items-center justify-center animate-fade-in p-4">
+        <div className="w-full max-w-lg bg-card border border-red-500/30 rounded-[2.5rem] p-8 md:p-10 shadow-2xl text-center space-y-6">
+          <div className="w-20 h-20 bg-red-500/10 rounded-full flex items-center justify-center mx-auto mb-2">
+            <AlertTriangle size={40} className="text-red-500" />
+          </div>
+          <div>
+            <h2 className="text-2xl md:text-3xl font-black text-white mb-3">Você tem certeza?</h2>
+            <p className="text-sm text-text-secondary leading-relaxed">
+              Esta ação apagará <strong>permanentemente</strong> sua conta, todos os logs de vendas, integrações e mapeamentos. Não há como desfazer isso.
+            </p>
+          </div>
+
+          <div className="space-y-4">
+            <label className="block text-[10px] font-black uppercase tracking-widest text-text-secondary">
+              Digite <span className="text-red-500">EXCLUIR</span> abaixo para confirmar:
+            </label>
+            <input 
+              type="text" 
+              value={deleteInput}
+              onChange={(e) => setDeleteInput(e.target.value)}
+              placeholder="Digite aqui..."
+              className="w-full bg-background border border-white/10 rounded-xl px-4 py-4 text-center text-sm font-black text-white focus:ring-2 focus:ring-red-500 outline-none transition-all"
+            />
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-4">
+            <button 
+              onClick={() => { setShowDeleteConfirmation(false); setDeleteInput(''); }}
+              className="flex items-center justify-center gap-2 py-4 px-6 bg-sidebar border border-border rounded-xl text-xs font-black uppercase tracking-widest text-white hover:bg-card transition-all"
+            >
+              <ArrowLeft size={16} /> Voltar
+            </button>
+            <button 
+              disabled={deleteInput !== 'EXCLUIR'}
+              onClick={executeAccountDeletion}
+              className={`py-4 px-6 rounded-xl text-xs font-black uppercase tracking-widest transition-all ${
+                deleteInput === 'EXCLUIR' 
+                  ? 'bg-red-500 text-white shadow-lg shadow-red-500/20' 
+                  : 'bg-red-500/10 text-red-500/30 cursor-not-allowed border border-red-500/10'
+              }`}
+            >
+              Continuar Exclusão
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6 md:space-y-8 animate-fade-in pb-20">
@@ -217,7 +266,7 @@ const Settings: React.FC = () => {
              </div>
              <p className="text-xs text-red-400/70 leading-relaxed font-medium">Excluir sua conta apagará permanentemente todos os seus logs e configurações de integração. Não é possível reverter esta ação.</p>
              <button 
-              onClick={handleDeleteAccount}
+              onClick={() => setShowDeleteConfirmation(true)}
               className="w-full py-3 border border-red-500/30 rounded-xl text-[11px] font-black uppercase tracking-widest text-red-500 hover:bg-red-500 hover:text-white transition-all shadow-sm"
              >
                 Apagar Todos os Meus Dados

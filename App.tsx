@@ -39,7 +39,7 @@ const App: React.FC = () => {
       case 'dashboard':
         return <Dashboard />;
       case 'integrations':
-        return <Integrations />;
+        return <Integrations onHelpClick={() => setIsHelpModalOpen(true)} />;
       case 'logs':
         return <Logs />;
       case 'settings':
@@ -68,7 +68,6 @@ const App: React.FC = () => {
         <Sidebar 
           currentPage={currentPage} 
           setCurrentPage={setCurrentPage}
-          onHelpClick={() => setIsHelpModalOpen(true)}
           onLogout={handleLogout}
         />
         <main className="flex-1 overflow-y-auto custom-scrollbar md:pb-8 pb-24 px-4 sm:px-6 md:px-8">
@@ -80,7 +79,7 @@ const App: React.FC = () => {
       <Modal 
         isOpen={isHelpModalOpen} 
         onClose={() => setIsHelpModalOpen(false)} 
-        title="Manual do Proprietário"
+        title="Manual de Instruções"
       >
         <Tutorial />
       </Modal>

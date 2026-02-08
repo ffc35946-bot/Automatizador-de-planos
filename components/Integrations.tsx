@@ -5,9 +5,13 @@ import Modal from './Modal';
 import CheckCircleIcon from './icons/CheckCircleIcon';
 import { IntegrationPlatform, type Integration, type SaasConfig, type User } from '../types';
 import { INITIAL_INTEGRATIONS, WEBHOOK_URL } from '../constants';
-import { Copy, Check, Plus, Trash2, AlertCircle, ArrowRightLeft, Link2, ExternalLink, Zap, Play, Loader2, LayoutGrid } from 'lucide-react';
+import { Copy, Check, Plus, Trash2, AlertCircle, ArrowRightLeft, Link2, ExternalLink, Zap, Play, Loader2, LayoutGrid, HelpCircle } from 'lucide-react';
 
-const Integrations: React.FC = () => {
+interface IntegrationsProps {
+  onHelpClick?: () => void;
+}
+
+const Integrations: React.FC<IntegrationsProps> = ({ onHelpClick }) => {
   const [user, setUser] = useState<User | null>(null);
   const [integrations, setIntegrations] = useState<Integration[]>([]);
   const [saasConfig, setSaasConfig] = useState<SaasConfig>({ endpoint: '', apiKey: '' });
@@ -83,10 +87,20 @@ const Integrations: React.FC = () => {
   return (
     <div className="space-y-6 md:space-y-8 animate-fade-in pb-20">
       <div className="flex items-center justify-between">
-        <div>
+        <div className="flex-1">
            <h2 className="text-3xl md:text-4xl font-black text-white tracking-tight">Canais</h2>
            <p className="text-sm text-text-secondary mt-1">Conecte seus checkouts ao seu sistema.</p>
         </div>
+        {onHelpClick && (
+          <button 
+            onClick={onHelpClick}
+            className="flex items-center gap-2 px-4 py-2.5 bg-yellow-500/10 text-yellow-500 rounded-xl border border-yellow-500/20 font-black uppercase tracking-widest text-[10px] md:text-xs transition-all hover:bg-yellow-500/20 active:scale-95 shadow-lg shadow-yellow-500/5"
+          >
+            <HelpCircle size={18} className="md:w-5 md:h-5" />
+            <span className="hidden sm:inline">Como Configurar?</span>
+            <span className="sm:hidden">Ajuda</span>
+          </button>
+        )}
       </div>
       
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 md:gap-8">
@@ -94,8 +108,8 @@ const Integrations: React.FC = () => {
           <Card title="1. Plataformas de Venda" className="bg-card/40 border-border/50">
             <div className="grid grid-cols-1 gap-3">
               {integrations.map((int) => (
-                <div key={int.platform} className="flex items-center justify-between p-4 rounded-2xl bg-background/40 border border-white/5 group hover:border-primary/30 transition-all">
-                  <div className="flex items-center gap-4 min-w-0">
+                <div key={int.platform} className="flex flex-col sm:flex-row items-center justify-between p-4 rounded-2xl bg-background/40 border border-white/5 group hover:border-primary/30 transition-all gap-4">
+                  <div className="flex items-center gap-4 min-w-0 w-full">
                     <div className="w-12 h-12 md:w-14 md:h-14 bg-white p-2 rounded-xl flex items-center justify-center border border-white/10 shrink-0">
                       <img src={int.logo} alt={int.platform} className="max-h-full max-w-full object-contain" />
                     </div>
@@ -106,10 +120,9 @@ const Integrations: React.FC = () => {
                       </span>
                     </div>
                   </div>
-                  {/* Botões com tamanho padronizado */}
                   <button 
                     onClick={() => handleConnectClick(int)} 
-                    className={`w-28 md:w-32 py-2.5 rounded-xl text-[11px] font-black uppercase tracking-wider transition-all shrink-0 ${
+                    className={`w-full sm:w-28 md:w-32 py-2.5 rounded-xl text-[11px] font-black uppercase tracking-wider transition-all shrink-0 ${
                       int.connected ? 'bg-secondary/10 text-secondary border border-secondary/20' : 'bg-primary text-white shadow-lg shadow-primary/20'
                     }`}
                   >

@@ -1,13 +1,12 @@
 
 import React, { useState, useEffect } from 'react';
 import { ResponsiveContainer, AreaChart, Area, XAxis, YAxis, Tooltip } from 'recharts';
-import { LogStatus, IntegrationPlatform, type LogEntry, type User } from '../types';
-import { TrendingUp, CheckCircle, XCircle, Activity, LayoutDashboard, Rocket, Zap, Wand2 } from 'lucide-react';
+import { LogStatus, type LogEntry, type User } from '../types';
+import { TrendingUp, CheckCircle, XCircle, Activity, Rocket, Zap } from 'lucide-react';
 
 const Dashboard: React.FC = () => {
   const [logs, setLogs] = useState<LogEntry[]>([]);
   const [user, setUser] = useState<User | null>(null);
-  const [isSimulating, setIsSimulating] = useState(false);
 
   const loadLogs = (email: string) => {
     const userLogs = localStorage.getItem(`logs_${email}`);
@@ -24,41 +23,6 @@ const Dashboard: React.FC = () => {
       loadLogs(userData.email);
     }
   }, []);
-
-  const simulateSale = () => {
-    if (!user) return;
-    setIsSimulating(true);
-    
-    setTimeout(() => {
-      const platforms = [IntegrationPlatform.Kirvano, IntegrationPlatform.Cakto, IntegrationPlatform.Kiwify];
-      const plans = ['Plano VIP Mensal', 'Master Anual', 'Micro-SaaS Lite', 'Pro Lifetime'];
-      const errors = [
-        '401 Unauthorized: API Key do destino inválida',
-        '404 Not Found: E-mail do cliente não existe na sua base',
-        '500 Server Error: Timeout na resposta do seu Endpoint',
-        'Mapeamento incorreto: Código "prod_99" não encontrado'
-      ];
-      
-      const isSuccess = Math.random() > 0.3;
-      
-      const newLog: LogEntry = {
-        id: Math.random().toString(36).substr(2, 9),
-        timestamp: new Date(),
-        platform: platforms[Math.floor(Math.random() * platforms.length)],
-        userEmail: `cliente_${Math.floor(Math.random() * 1000)}@exemplo.com`,
-        plan: plans[Math.floor(Math.random() * plans.length)],
-        status: isSuccess ? LogStatus.Success : LogStatus.Failed,
-        error: isSuccess ? undefined : errors[Math.floor(Math.random() * errors.length)]
-      };
-
-      const existingLogs = JSON.parse(localStorage.getItem(`logs_${user.email}`) || '[]');
-      const updatedLogs = [newLog, ...existingLogs].slice(0, 50); // Mantém apenas os 50 mais recentes
-      localStorage.setItem(`logs_${user.email}`, JSON.stringify(updatedLogs));
-      
-      setLogs(updatedLogs.map(l => ({ ...l, timestamp: new Date(l.timestamp) })));
-      setIsSimulating(false);
-    }, 800);
-  };
 
   const totalActivations = logs.length;
   const successfulActivations = logs.filter(log => log.status === LogStatus.Success).length;
@@ -86,22 +50,21 @@ const Dashboard: React.FC = () => {
   if (logs.length === 0) {
     return (
       <div className="min-h-[80vh] flex flex-col items-center justify-center text-center p-6 animate-fade-in">
-        <div className="w-24 h-24 bg-primary/10 rounded-[2rem] flex items-center justify-center mb-6 ring-1 ring-primary/20">
+        <div className="w-24 h-24 bg-primary/10 rounded-[2rem] flex items-center justify-center mb-6 ring-1 ring-primary/20 shadow-2xl">
           <Rocket size={48} className="text-primary animate-pulse" />
         </div>
         <h2 className="text-3xl font-black text-white mb-3">Bem-vindo, {user?.name?.split(' ')[0]}!</h2>
         <p className="text-text-secondary max-w-md leading-relaxed mb-8">
-          Seu painel está pronto, mas ainda não recebemos nenhuma venda. Você pode configurar uma integração real ou simular agora para ver como funciona.
+          Seu painel está pronto e aguardando a primeira venda. Vá até a aba <strong>Canais</strong> para conectar seu checkout e começar a automatizar.
         </p>
-        <div className="flex flex-col sm:flex-row gap-4 w-full max-w-lg">
-           <button 
-             onClick={simulateSale}
-             disabled={isSimulating}
-             className="flex-1 bg-primary hover:bg-indigo-500 text-white font-black py-4 rounded-2xl shadow-xl transition-all uppercase tracking-widest text-xs flex items-center justify-center gap-2"
-           >
-             {isSimulating ? <Activity className="animate-spin" size={16} /> : <Zap size={16} />}
-             Simular Primeira Venda
-           </button>
+        <div className="p-4 bg-sidebar/50 border border-white/5 rounded-2xl flex items-center gap-4 text-left max-w-lg">
+           <div className="p-3 bg-primary/10 rounded-xl">
+              <Zap size={20} className="text-primary" />
+           </div>
+           <div>
+              <p className="text-xs font-bold text-white">Status do Sistema: Ativo</p>
+              <p className="text-[10px] text-text-secondary">Ouvindo Webhooks em tempo real.</p>
+           </div>
         </div>
       </div>
     );
@@ -114,14 +77,10 @@ const Dashboard: React.FC = () => {
           <h2 className="text-3xl font-black text-white tracking-tight">Olá, {user?.name?.split(' ')[0]}</h2>
           <p className="text-text-secondary mt-1 font-medium text-sm">Resumo operacional das últimas 24h.</p>
         </div>
-        <button 
-          onClick={simulateSale}
-          disabled={isSimulating}
-          className="bg-secondary/10 hover:bg-secondary/20 border border-secondary/20 px-6 py-3 rounded-2xl flex items-center justify-center gap-3 text-secondary font-bold text-xs uppercase tracking-widest transition-all active:scale-95"
-        >
-          {isSimulating ? <Activity size={16} className="animate-spin" /> : <Wand2 size={16} />}
-          <span>Simular Venda</span>
-        </button>
+        <div className="flex items-center gap-2 px-4 py-2 bg-secondary/10 border border-secondary/20 rounded-full">
+            <div className="w-2 h-2 bg-secondary rounded-full animate-pulse"></div>
+            <span className="text-[10px] font-black text-secondary uppercase tracking-widest">Monitoramento Ativo</span>
+        </div>
       </div>
       
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-6">

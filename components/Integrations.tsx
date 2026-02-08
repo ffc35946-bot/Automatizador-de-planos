@@ -4,7 +4,7 @@ import Card from './Card';
 import Modal from './Modal';
 import { IntegrationPlatform, type Integration, type SaasConfig, type User } from '../types';
 import { INITIAL_INTEGRATIONS, WEBHOOK_URL } from '../constants';
-import { Copy, Check, Plus, Trash2, ArrowRightLeft, Link2, Play, Loader2, LayoutGrid, HelpCircle, Globe } from 'lucide-react';
+import { Copy, Check, Plus, Trash2, ArrowRightLeft, Play, Loader2, LayoutGrid, HelpCircle, Globe } from 'lucide-react';
 
 interface IntegrationsProps {
   onHelpClick?: () => void;
@@ -12,7 +12,7 @@ interface IntegrationsProps {
 
 const Integrations: React.FC<IntegrationsProps> = ({ onHelpClick }) => {
   const [user, setUser] = useState<User | null>(null);
-  const [integrations, setIntegrations] = useState<Integration[]>([]);
+  const [integrations, setIntegrations] = useState<Integration[]>(INITIAL_INTEGRATIONS);
   const [saasConfig, setSaasConfig] = useState<SaasConfig>({ endpoint: '', apiKey: '' });
   const [planMappings, setPlanMappings] = useState<{id: number, checkoutId: string, saasPlan: string}[]>([]);
   
@@ -28,12 +28,23 @@ const Integrations: React.FC<IntegrationsProps> = ({ onHelpClick }) => {
       const userData = JSON.parse(session);
       setUser(userData);
       
-      const savedIntegrations = localStorage.getItem(`integrations_${userData.email}`);
+      const savedIntegrationsStr = localStorage.getItem(`integrations_${userData.email}`);
       const savedConfig = localStorage.getItem(`config_${userData.email}`);
       const savedMappings = localStorage.getItem(`mappings_${userData.email}`);
 
-      // Garante que se não houver integrações salvas, use as iniciais (com logos)
-      setIntegrations(savedIntegrations ? JSON.parse(savedIntegrations) : INITIAL_INTEGRATIONS);
+      // Lógica crucial: Sempre usa INITIAL_INTEGRATIONS para garantir que nada suma.
+      // Apenas atualiza o status 'connected' a partir do que estiver salvo.
+      if (savedIntegrationsStr) {
+          const saved: Integration[] = JSON.parse(savedIntegrationsStr);
+          const merged = INITIAL_INTEGRATIONS.map(initial => {
+              const savedItem = saved.find(s => s.platform === initial.platform);
+              return savedItem ? { ...initial, connected: savedItem.connected } : initial;
+          });
+          setIntegrations(merged);
+      } else {
+          setIntegrations(INITIAL_INTEGRATIONS);
+      }
+
       setSaasConfig(savedConfig ? JSON.parse(savedConfig) : { endpoint: '', apiKey: '' });
       setPlanMappings(savedMappings ? JSON.parse(savedMappings) : []);
     }
@@ -88,7 +99,7 @@ const Integrations: React.FC<IntegrationsProps> = ({ onHelpClick }) => {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
            <h2 className="text-3xl font-black text-white tracking-tight">Canais</h2>
-           <p className="text-sm text-text-secondary mt-1 font-medium">Conecte seus checkouts ao seu sistema.</p>
+           <p className="text-sm text-text-secondary mt-1 font-medium">Configure onde suas vendas acontecem.</p>
         </div>
         <button 
           onClick={onHelpClick}
@@ -106,7 +117,6 @@ const Integrations: React.FC<IntegrationsProps> = ({ onHelpClick }) => {
               {integrations.map((int) => (
                 <div key={int.platform} className="flex flex-col sm:flex-row items-center justify-between p-5 rounded-[1.5rem] bg-background/60 border border-white/5 group hover:border-primary/40 transition-all gap-4">
                   <div className="flex items-center gap-4 w-full sm:w-auto">
-                    {/* Container da Logo - Restaurado com Fundo Branco e Sombra */}
                     <div className="w-16 h-16 bg-white rounded-2xl flex items-center justify-center p-2.5 shadow-xl shrink-0 overflow-hidden border border-white/20">
                       <img 
                         src={int.logo} 
@@ -122,7 +132,7 @@ const Integrations: React.FC<IntegrationsProps> = ({ onHelpClick }) => {
                       <div className="flex items-center gap-1.5 mt-1">
                         <div className={`w-2 h-2 rounded-full ${int.connected ? 'bg-secondary' : 'bg-gray-600'}`}></div>
                         <span className={`text-[10px] font-black uppercase tracking-widest ${int.connected ? 'text-secondary' : 'text-gray-500'}`}>
-                          {int.connected ? 'Conectado' : 'Aguardando'}
+                          {int.connected ? 'Conectado' : 'Desativado'}
                         </span>
                       </div>
                     </div>
@@ -178,7 +188,7 @@ const Integrations: React.FC<IntegrationsProps> = ({ onHelpClick }) => {
               <div className="py-16 text-center opacity-20 flex flex-col items-center">
                 <LayoutGrid size={48} className="mb-4" />
                 <p className="text-[11px] font-black uppercase tracking-[0.3em]">Nenhuma regra definida</p>
-                <p className="text-[10px] mt-2 normal-case">Clique abaixo para converter IDs de checkout em planos.</p>
+                <p className="text-[10px] mt-2 normal-case">Converta IDs de checkout em nomes de planos internos.</p>
               </div>
             ) : (
               planMappings.map((m) => (

@@ -89,12 +89,12 @@ const Integrations: React.FC<IntegrationsProps> = ({ onHelpClick }) => {
       <div className="flex items-center justify-between gap-4">
         <div className="flex-1">
            <h2 className="text-3xl md:text-4xl font-black text-white tracking-tight">Canais</h2>
-           <p className="text-xs md:text-sm text-text-secondary mt-1">Conecte seus checkouts ao seu sistema.</p>
+           <p className="text-xs md:text-sm text-text-secondary mt-1 font-medium">Conecte seus checkouts ao seu sistema.</p>
         </div>
         {onHelpClick && (
           <button 
             onClick={onHelpClick}
-            className="flex items-center justify-center gap-2 p-3 md:px-5 md:py-3 bg-yellow-500/10 text-yellow-500 rounded-2xl border border-yellow-500/20 font-black uppercase tracking-widest transition-all hover:bg-yellow-500/20 active:scale-95 shadow-lg shadow-yellow-500/5 group"
+            className="flex items-center justify-center gap-2 p-3 md:px-5 md:py-3 bg-yellow-500/10 text-yellow-500 rounded-2xl border border-yellow-500/20 font-black uppercase tracking-widest transition-all hover:bg-yellow-500/20 active:scale-95 shadow-lg shadow-yellow-500/5 group shrink-0"
           >
             <HelpCircle size={20} className="group-hover:rotate-12 transition-transform" />
             <span className="hidden md:inline text-[11px]">Central de Ajuda</span>
@@ -120,7 +120,6 @@ const Integrations: React.FC<IntegrationsProps> = ({ onHelpClick }) => {
                       </span>
                     </div>
                   </div>
-                  {/* Botões com tamanho idêntico de 128px (w-32) para harmonia visual */}
                   <button 
                     onClick={() => handleConnectClick(int)} 
                     className={`w-full sm:w-32 py-3 rounded-xl text-[11px] font-black uppercase tracking-wider transition-all shrink-0 ${

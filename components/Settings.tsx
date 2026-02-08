@@ -71,20 +71,23 @@ const Settings: React.FC = () => {
   };
 
   const executeDataReset = () => {
-    if (!user || deleteInput !== 'EXCLUIR') return;
+    if (!user || deleteInput.toUpperCase() !== 'EXCLUIR') return;
 
-    // Limpa APENAS os dados operacionais, mantém a conta (usuário)
+    // Remove APENAS dados operacionais vinculados ao e-mail do usuário
     localStorage.removeItem(`logs_${user.email}`);
     localStorage.removeItem(`integrations_${user.email}`);
     localStorage.removeItem(`config_${user.email}`);
     localStorage.removeItem(`mappings_${user.email}`);
 
-    // Feedback visual
-    setMessage({ type: 'success', text: 'Todos os seus dados operacionais foram resetados.' });
+    // Feedback visual de sucesso
+    setMessage({ type: 'success', text: 'Dados operacionais removidos. Sua conta permanece ativa.' });
     setShowDeleteConfirmation(false);
     setDeleteInput('');
     
-    // Pequeno delay para garantir que o usuário veja a mensagem antes de qualquer atualização de estado global se houver
+    // Força um pequeno delay para o usuário ver o feedback antes de qualquer recarregamento opcional
+    setTimeout(() => {
+       window.location.hash = 'dashboard'; // Opcional: redireciona visualmente
+    }, 1500);
   };
 
   if (showDeleteConfirmation) {
@@ -97,13 +100,13 @@ const Settings: React.FC = () => {
           <div>
             <h2 className="text-2xl md:text-3xl font-black text-white mb-3 tracking-tight">Limpar Meus Dados?</h2>
             <p className="text-sm text-text-secondary leading-relaxed">
-              Isso apagará seus <strong>Logs, Integrações e Mapeamentos</strong>. Sua conta continuará ativa, mas o sistema voltará ao estado original.
+              Sua conta <strong>continuará ativa</strong>, mas todos os seus Logs de vendas, configurações de integração e mapeamentos de planos serão apagados permanentemente.
             </p>
           </div>
 
           <div className="space-y-4">
             <label className="block text-[10px] font-black uppercase tracking-widest text-text-secondary">
-              Confirme digitando <span className="text-red-500">EXCLUIR</span>:
+              Confirme digitando <span className="text-red-500">EXCLUIR</span> abaixo:
             </label>
             <input 
               type="text" 
@@ -119,18 +122,18 @@ const Settings: React.FC = () => {
               onClick={() => { setShowDeleteConfirmation(false); setDeleteInput(''); }}
               className="flex items-center justify-center gap-2 py-4 px-6 bg-sidebar border border-border rounded-xl text-xs font-black uppercase tracking-widest text-white hover:bg-card transition-all"
             >
-              Voltar
+              <ArrowLeft size={16} /> Voltar
             </button>
             <button 
-              disabled={deleteInput !== 'EXCLUIR'}
+              disabled={deleteInput.toUpperCase() !== 'EXCLUIR'}
               onClick={executeDataReset}
               className={`py-4 px-6 rounded-xl text-xs font-black uppercase tracking-widest transition-all ${
-                deleteInput === 'EXCLUIR' 
+                deleteInput.toUpperCase() === 'EXCLUIR' 
                   ? 'bg-red-500 text-white shadow-lg shadow-red-500/20' 
                   : 'bg-red-500/10 text-red-500/30 cursor-not-allowed border border-red-500/10'
               }`}
             >
-              Continuar
+              Confirmar
             </button>
           </div>
         </div>
@@ -203,14 +206,14 @@ const Settings: React.FC = () => {
               <div className="flex items-center justify-between p-4 bg-background/30 rounded-xl border border-white/5">
                 <div className="flex items-center gap-3">
                   <Bell size={18} className="text-primary" />
-                  <span className="text-xs font-semibold text-white">Alertas de Venda</span>
+                  <span className="text-xs font-semibold text-white">Notificações de Venda</span>
                 </div>
                 <input type="checkbox" defaultChecked className="w-5 h-5 accent-primary cursor-pointer" />
               </div>
               <div className="flex items-center justify-between p-4 bg-background/30 rounded-xl border border-white/5">
                 <div className="flex items-center gap-3">
                   <Laptop size={18} className="text-secondary" />
-                  <span className="text-xs font-semibold text-white">Modo Desenvolvedor</span>
+                  <span className="text-xs font-semibold text-white">Interface Compacta</span>
                 </div>
                 <input type="checkbox" className="w-5 h-5 accent-secondary cursor-pointer" />
               </div>
@@ -248,7 +251,7 @@ const Settings: React.FC = () => {
                 </div>
               </div>
               <button type="submit" className="w-full bg-sidebar border border-border/50 hover:bg-card text-white font-bold py-3.5 rounded-xl transition-all text-sm">
-                Atualizar Senha
+                Redefinir Senha
               </button>
             </form>
           </Card>
@@ -256,15 +259,15 @@ const Settings: React.FC = () => {
           <div className="p-6 bg-red-500/5 border border-red-500/20 rounded-[2rem] space-y-4">
              <div className="flex items-center gap-3 text-red-400">
                <AlertTriangle size={20} />
-               <h3 className="font-black text-xs uppercase tracking-wider">Limpeza de Conta</h3>
+               <h3 className="font-black text-xs uppercase tracking-wider">Zona Sensível</h3>
              </div>
-             <p className="text-[11px] text-red-400/70 leading-relaxed font-medium">Esta opção apaga todos os seus dados operacionais mas mantém sua conta de acesso ativa.</p>
+             <p className="text-[11px] text-red-400/70 leading-relaxed font-medium">Esta opção limpa todo o histórico de operações (logs e conexões) sem afetar seu login.</p>
              <button 
               onClick={() => setShowDeleteConfirmation(true)}
               className="w-full py-3 bg-red-500/10 border border-red-500/30 rounded-xl text-[10px] font-black uppercase tracking-widest text-red-500 hover:bg-red-500 hover:text-white transition-all shadow-sm flex items-center justify-center gap-2"
              >
                 <RefreshCcw size={14} />
-                Resetar Todos os Dados
+                Resetar Dados Operacionais
              </button>
           </div>
         </div>

@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import Card from './Card';
-import { User as UserIcon, Phone, Mail, Lock, ShieldCheck, Save, CheckCircle, Bell, Laptop } from 'lucide-react';
+import { User as UserIcon, Phone, Mail, Lock, ShieldCheck, Save, CheckCircle, Bell, Laptop, AlertTriangle } from 'lucide-react';
 import type { User } from '../types';
 
 const Settings: React.FC = () => {
@@ -32,12 +32,10 @@ const Settings: React.FC = () => {
 
     const updatedUser = { ...user, name, phone };
     
-    // Atualiza lista global de usuários
     const allUsers = JSON.parse(localStorage.getItem('saas_users') || '[]');
     const updatedUsersList = allUsers.map((u: User) => u.email === user.email ? updatedUser : u);
     localStorage.setItem('saas_users', JSON.stringify(updatedUsersList));
     
-    // Atualiza sessão ativa
     localStorage.setItem('saas_active_session', JSON.stringify(updatedUser));
     setUser(updatedUser);
 
@@ -68,11 +66,38 @@ const Settings: React.FC = () => {
     setMessage({ type: 'success', text: 'Senha alterada com sucesso!' });
   };
 
+  const handleDeleteAccount = () => {
+    if (!user) return;
+
+    const confirmDelete = window.confirm(
+      "ATENÇÃO: Esta ação é irreversível!\n\nTodos os seus logs, integrações e configurações serão apagados permanentemente. Deseja continuar?"
+    );
+
+    if (confirmDelete) {
+      // 1. Remover do array global de usuários
+      const allUsers = JSON.parse(localStorage.getItem('saas_users') || '[]');
+      const updatedUsers = allUsers.filter((u: User) => u.email !== user.email);
+      localStorage.setItem('saas_users', JSON.stringify(updatedUsers));
+
+      // 2. Limpar dados específicos do usuário
+      localStorage.removeItem(`logs_${user.email}`);
+      localStorage.removeItem(`integrations_${user.email}`);
+      localStorage.removeItem(`config_${user.email}`);
+      localStorage.removeItem(`mappings_${user.email}`);
+
+      // 3. Encerrar sessão
+      localStorage.removeItem('saas_active_session');
+      
+      // 4. Recarregar app para voltar ao login
+      window.location.reload();
+    }
+  };
+
   return (
-    <div className="space-y-8 animate-fade-in pb-20">
+    <div className="space-y-6 md:space-y-8 animate-fade-in pb-20">
       <div>
-        <h2 className="text-3xl font-black text-white tracking-tight">Configurações</h2>
-        <p className="text-text-secondary mt-1">Gerencie sua conta e preferências de segurança.</p>
+        <h2 className="text-2xl md:text-3xl font-black text-white tracking-tight">Configurações</h2>
+        <p className="text-sm text-text-secondary mt-1">Gerencie sua identidade e preferências de segurança.</p>
       </div>
 
       {message && (
@@ -82,9 +107,9 @@ const Settings: React.FC = () => {
         </div>
       )}
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 md:gap-8">
         {/* Perfil */}
-        <div className="space-y-8">
+        <div className="space-y-6 md:space-y-8">
           <Card title="Dados do Perfil" className="bg-card/40 border-border/50">
             <form onSubmit={handleUpdateProfile} className="space-y-5">
               <div className="space-y-1.5">
@@ -100,10 +125,10 @@ const Settings: React.FC = () => {
                 </div>
               </div>
               <div className="space-y-1.5 opacity-60">
-                <label className="text-[10px] font-bold text-text-secondary uppercase tracking-widest ml-1">E-mail (Não editável)</label>
+                <label className="text-[10px] font-bold text-text-secondary uppercase tracking-widest ml-1">E-mail (Permanente)</label>
                 <div className="relative">
                   <div className="absolute inset-y-0 left-0 pl-4 flex items-center text-gray-500"><Mail size={18} /></div>
-                  <input type="text" readOnly value={user?.email || ''} className="w-full bg-background/30 border border-white/5 rounded-xl pl-11 py-3 text-sm text-gray-500 outline-none" />
+                  <input type="text" readOnly value={user?.email || ''} className="w-full bg-background/30 border border-white/5 rounded-xl pl-11 py-3 text-sm text-gray-500 outline-none cursor-not-allowed" />
                 </div>
               </div>
               <div className="space-y-1.5">
@@ -121,37 +146,37 @@ const Settings: React.FC = () => {
               <button 
                 type="submit" 
                 disabled={isSaving}
-                className="w-full bg-primary hover:bg-indigo-500 text-white font-bold py-3.5 rounded-xl shadow-lg transition-all flex items-center justify-center gap-2"
+                className="w-full bg-primary hover:bg-indigo-500 text-white font-bold py-3.5 rounded-xl shadow-lg transition-all flex items-center justify-center gap-2 text-sm"
               >
-                {isSaving ? "Salvando..." : "Salvar Alterações"}
+                {isSaving ? "Atualizando..." : "Salvar Alterações"}
                 <Save size={18} />
               </button>
             </form>
           </Card>
 
-          <Card title="Preferências" className="bg-card/40 border-border/50">
-            <div className="space-y-4">
-              <div className="flex items-center justify-between p-3 bg-background/30 rounded-xl border border-white/5">
+          <Card title="Notificações" className="bg-card/40 border-border/50">
+            <div className="space-y-3">
+              <div className="flex items-center justify-between p-4 bg-background/30 rounded-xl border border-white/5">
                 <div className="flex items-center gap-3">
                   <Bell size={18} className="text-primary" />
-                  <span className="text-sm font-medium text-white">Alertas de Falha no Telegram</span>
+                  <span className="text-xs font-semibold text-white">Alertas de Erro</span>
                 </div>
-                <input type="checkbox" className="w-5 h-5 accent-primary" />
+                <input type="checkbox" className="w-5 h-5 accent-primary cursor-pointer" />
               </div>
-              <div className="flex items-center justify-between p-3 bg-background/30 rounded-xl border border-white/5">
+              <div className="flex items-center justify-between p-4 bg-background/30 rounded-xl border border-white/5">
                 <div className="flex items-center gap-3">
                   <Laptop size={18} className="text-secondary" />
-                  <span className="text-sm font-medium text-white">Modo Desenvolvedor (Logs Verbosos)</span>
+                  <span className="text-xs font-semibold text-white">Relatórios Semanais</span>
                 </div>
-                <input type="checkbox" className="w-5 h-5 accent-secondary" />
+                <input type="checkbox" className="w-5 h-5 accent-secondary cursor-pointer" />
               </div>
             </div>
           </Card>
         </div>
 
         {/* Segurança */}
-        <div className="space-y-8">
-          <Card title="Alterar Senha" className="bg-card/40 border-border/50">
+        <div className="space-y-6 md:space-y-8">
+          <Card title="Segurança da Conta" className="bg-card/40 border-border/50">
             <form onSubmit={handleChangePassword} className="space-y-5">
               <div className="space-y-1.5">
                 <label className="text-[10px] font-bold text-text-secondary uppercase tracking-widest ml-1">Senha Atual</label>
@@ -179,19 +204,24 @@ const Settings: React.FC = () => {
                   />
                 </div>
               </div>
-              <button type="submit" className="w-full bg-sidebar border border-border/50 hover:bg-card text-white font-bold py-3.5 rounded-xl transition-all">
-                Atualizar Senha
+              <button type="submit" className="w-full bg-sidebar border border-border/50 hover:bg-card text-white font-bold py-3.5 rounded-xl transition-all text-sm">
+                Redefinir Senha
               </button>
             </form>
           </Card>
 
-          <div className="p-6 bg-red-500/5 border border-red-500/20 rounded-3xl space-y-4">
+          <div className="p-6 bg-red-500/5 border border-red-500/20 rounded-[2rem] space-y-4">
              <div className="flex items-center gap-3 text-red-400">
-               <ShieldCheck size={24} />
-               <h3 className="font-bold">Zona de Perigo</h3>
+               <AlertTriangle size={24} />
+               <h3 className="font-black text-sm uppercase tracking-wider">Zona de Risco</h3>
              </div>
-             <p className="text-xs text-red-400/70 leading-relaxed">Excluir sua conta removerá todos os logs de integração e configurações permanentemente. Esta ação não pode ser desfeita.</p>
-             <button className="text-[10px] font-black uppercase tracking-widest text-red-500 hover:underline">Excluir Minha Conta</button>
+             <p className="text-xs text-red-400/70 leading-relaxed font-medium">Excluir sua conta apagará permanentemente todos os seus logs e configurações de integração. Não é possível reverter esta ação.</p>
+             <button 
+              onClick={handleDeleteAccount}
+              className="w-full py-3 border border-red-500/30 rounded-xl text-[11px] font-black uppercase tracking-widest text-red-500 hover:bg-red-500 hover:text-white transition-all shadow-sm"
+             >
+                Apagar Todos os Meus Dados
+             </button>
           </div>
         </div>
       </div>

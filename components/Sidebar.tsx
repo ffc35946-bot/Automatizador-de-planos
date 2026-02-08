@@ -76,31 +76,43 @@ const Sidebar: React.FC<SidebarProps> = ({ currentPage, setCurrentPage, onHelpCl
         </div>
       </aside>
 
-      {/* Mobile Bottom Navigation */}
-      <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50 glass border-t border-white/5 px-2 pb-safe">
-        <div className="flex items-center justify-around h-20">
+      {/* Mobile Bottom Navigation - Agora com botão de Ajuda */}
+      <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50 glass border-t border-white/5 px-1 pb-safe shadow-[0_-10px_30px_rgba(0,0,0,0.5)]">
+        <div className="flex items-center justify-between h-20">
           {NAV_ITEMS.map((item) => (
             <button
               key={item.id}
               onClick={() => setCurrentPage(item.id)}
-              className={`flex flex-col items-center justify-center w-full gap-1 transition-all ${
+              className={`flex flex-col items-center justify-center flex-1 gap-1 transition-all ${
                 currentPage === item.id ? 'text-primary scale-110' : 'text-text-secondary'
               }`}
             >
               <div className={`p-2 rounded-xl transition-colors ${currentPage === item.id ? 'bg-primary/10' : ''}`}>
                 {ICONS[item.id]}
               </div>
-              <span className="text-[10px] font-bold uppercase tracking-tighter">{item.label}</span>
+              <span className="text-[9px] font-bold uppercase tracking-tighter">{item.label}</span>
             </button>
           ))}
+          
+          {/* Botão de Ajuda Mobile */}
+          <button
+            onClick={onHelpClick}
+            className="flex flex-col items-center justify-center flex-1 gap-1 text-yellow-500/80"
+          >
+            <div className="p-2">
+                <HelpCircle size={20} />
+            </div>
+            <span className="text-[9px] font-bold uppercase tracking-tighter">Ajuda</span>
+          </button>
+
           <button
             onClick={onLogout}
-            className="flex flex-col items-center justify-center w-full gap-1 text-red-500/50"
+            className="flex flex-col items-center justify-center flex-1 gap-1 text-red-500/50"
           >
             <div className="p-2">
                 <LogOut size={20} />
             </div>
-            <span className="text-[10px] font-bold uppercase tracking-tighter">Sair</span>
+            <span className="text-[9px] font-bold uppercase tracking-tighter">Sair</span>
           </button>
         </div>
       </nav>

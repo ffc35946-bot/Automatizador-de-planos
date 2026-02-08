@@ -9,12 +9,11 @@ interface CardProps {
 
 const Card: React.FC<CardProps> = ({ title, children, className }) => {
   return (
-    <div className={`bg-card rounded-lg shadow-lg p-6 border border-border ${className}`}>
-      <h3 className="text-xl font-bold text-text-primary mb-4">{title}</h3>
+    <div className={`bg-card rounded-[2rem] shadow-xl p-6 md:p-8 border border-border ${className}`}>
+      <h3 className="text-base md:text-lg font-black text-white mb-6 uppercase tracking-widest">{title}</h3>
       <div>{children}</div>
     </div>
   );
 };
 
 export default Card;
-   

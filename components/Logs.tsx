@@ -1,11 +1,12 @@
 
 import React, { useState, useEffect } from 'react';
-import { MOCK_LOGS, WEBHOOK_URL } from '../constants';
-import type { LogEntry } from '../types';
+import type { LogEntry, User } from '../types';
 import { LogStatus } from '../types';
+import { WEBHOOK_URL } from '../constants';
 import CheckCircleIcon from './icons/CheckCircleIcon';
 import XCircleIcon from './icons/XCircleIcon';
 import ClockIcon from './icons/ClockIcon';
+import { ListFilter, Search, Info, Database } from 'lucide-react';
 
 const StatusBadge: React.FC<{ status: LogStatus }> = ({ status }) => {
   const baseClasses = "flex items-center space-x-2 px-3 py-1 text-[10px] font-bold uppercase tracking-wider rounded-full border shadow-sm";
@@ -22,55 +23,72 @@ const StatusBadge: React.FC<{ status: LogStatus }> = ({ status }) => {
 };
 
 const Logs: React.FC = () => {
-    const [logs, setLogs] = useState<LogEntry[]>(MOCK_LOGS);
+    const [logs, setLogs] = useState<LogEntry[]>([]);
+    const [user, setUser] = useState<User | null>(null);
 
     useEffect(() => {
-        const interval = setInterval(() => {
-            const newLog: LogEntry = {
-                id: `log${Date.now()}`,
-                timestamp: new Date(),
-                platform: MOCK_LOGS[0].platform,
-                userEmail: `user${Math.floor(Math.random()*1000)}@example.com`,
-                plan: Math.random() > 0.5 ? 'Plano Pro' : 'Plano Básico',
-                status: LogStatus.Processing
-            };
-            setLogs(prev => [newLog, ...prev]);
-
-            setTimeout(() => {
-                setLogs(prev => prev.map(l => l.id === newLog.id ? {...l, status: Math.random() > 0.2 ? LogStatus.Success : LogStatus.Failed, error: l.status === LogStatus.Failed ? 'Timeout' : undefined } : l));
-            }, 3000);
-        }, 15000);
-        return () => clearInterval(interval);
+        const session = localStorage.getItem('saas_active_session');
+        if (session) {
+            const userData = JSON.parse(session);
+            setUser(userData);
+            const savedLogs = localStorage.getItem(`logs_${userData.email}`);
+            if (savedLogs) {
+                setLogs(JSON.parse(savedLogs).map((l: any) => ({ ...l, timestamp: new Date(l.timestamp) })));
+            }
+        }
     }, []);
 
     const formatTime = (date: Date) => {
-        return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+    }
+
+    if (logs.length === 0) {
+        return (
+            <div className="min-h-[70vh] flex flex-col items-center justify-center text-center p-6 animate-fade-in">
+                <div className="w-20 h-20 bg-card border border-border rounded-[2rem] flex items-center justify-center mb-6 shadow-xl">
+                    <Database size={32} className="text-gray-500" />
+                </div>
+                <h2 className="text-2xl font-black text-white mb-2">Sem registros ainda</h2>
+                <p className="text-text-secondary max-w-sm text-sm leading-relaxed mb-8">
+                    As tentativas de ativação aparecerão aqui em tempo real assim que seu webhook receber as primeiras vendas.
+                </p>
+                <div className="bg-primary/5 border border-primary/20 p-4 rounded-2xl flex items-start gap-4 text-left max-w-md">
+                    <Info className="text-primary shrink-0 mt-0.5" size={18} />
+                    <p className="text-xs text-text-secondary leading-relaxed">
+                        <strong className="text-primary">Dica:</strong> Certifique-se de que a URL do Webhook está configurada corretamente na sua plataforma de checkout.
+                    </p>
+                </div>
+            </div>
+        );
     }
 
   return (
     <div className="space-y-8 animate-fade-in">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <h2 className="text-3xl font-black text-white">Registros</h2>
+        <div>
+            <h2 className="text-3xl font-black text-white">Registros</h2>
+            <p className="text-text-secondary text-sm">Histórico detalhado de ativações.</p>
+        </div>
         <div className="bg-card p-3 rounded-2xl border border-border flex items-center gap-3">
              <div className="p-2 bg-primary/10 rounded-lg shrink-0">
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                <Search className="h-4 w-4 text-primary" />
              </div>
              <p className="text-[11px] font-bold text-text-secondary uppercase tracking-tight truncate">
-                Webhook: <code className="text-primary font-mono lowercase">...{WEBHOOK_URL.slice(-12)}</code>
+                Monitorando: <code className="text-primary font-mono lowercase">...{WEBHOOK_URL.slice(-12)}</code>
              </p>
         </div>
       </div>
 
       <div className="bg-card/40 backdrop-blur-md rounded-[2.5rem] border border-border shadow-2xl overflow-hidden">
         <div className="overflow-x-auto custom-scrollbar">
-            <table className="w-full text-left border-collapse min-w-[600px]">
+            <table className="w-full text-left border-collapse min-w-[700px]">
             <thead className="bg-sidebar/50">
                 <tr>
                 <th className="p-6 text-[11px] font-black text-text-secondary uppercase tracking-widest">Status</th>
                 <th className="p-6 text-[11px] font-black text-text-secondary uppercase tracking-widest">Cliente</th>
                 <th className="p-6 text-[11px] font-black text-text-secondary uppercase tracking-widest">Produto</th>
                 <th className="p-6 text-[11px] font-black text-text-secondary uppercase tracking-widest">Origem</th>
-                <th className="p-6 text-[11px] font-black text-text-secondary uppercase tracking-widest text-right">Hora</th>
+                <th className="p-6 text-[11px] font-black text-text-secondary uppercase tracking-widest text-right">Data/Hora</th>
                 </tr>
             </thead>
             <tbody className="divide-y divide-white/5">

@@ -35,3 +35,9 @@ export interface SaasConfig {
     endpoint: string;
     apiKey: string;
 }
+
+export interface User {
+  email: string;
+  phone: string;
+  password?: string;
+}

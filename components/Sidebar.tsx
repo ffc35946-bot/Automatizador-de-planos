@@ -9,6 +9,7 @@ import {
     List,
     Blocks,
     HelpCircle,
+    LogOut
 } from 'lucide-react';
 
 
@@ -16,6 +17,7 @@ interface SidebarProps {
   currentPage: Page;
   setCurrentPage: (page: Page) => void;
   onHelpClick: () => void;
+  onLogout: () => void;
 }
 
 const ICONS: Record<Page, React.ReactNode> = {
@@ -25,13 +27,13 @@ const ICONS: Record<Page, React.ReactNode> = {
     settings: <Cog size={20} />,
 };
 
-const Sidebar: React.FC<SidebarProps> = ({ currentPage, setCurrentPage, onHelpClick }) => {
+const Sidebar: React.FC<SidebarProps> = ({ currentPage, setCurrentPage, onHelpClick, onLogout }) => {
   return (
     <aside className="w-64 bg-sidebar p-4 flex-shrink-0 flex flex-col justify-between border-r border-border">
       <div>
         <div className="flex items-center space-x-3 mb-10 px-2">
             <LifeBuoy className="h-8 w-8 text-primary" />
-            <h1 className="text-xl font-bold text-text-primary">Automatizador de Planos</h1>
+            <h1 className="text-xl font-bold text-text-primary">Plan Automator</h1>
         </div>
         <nav className="flex flex-col space-y-2">
           {NAV_ITEMS.map((item) => (
@@ -51,7 +53,7 @@ const Sidebar: React.FC<SidebarProps> = ({ currentPage, setCurrentPage, onHelpCl
         </nav>
       </div>
 
-      <div>
+      <div className="space-y-2">
         <button
             onClick={onHelpClick}
             className="flex w-full items-center space-x-3 px-3 py-2.5 rounded-lg text-left text-sm font-medium transition-all duration-200 text-text-secondary hover:bg-card hover:text-text-primary"
@@ -59,8 +61,15 @@ const Sidebar: React.FC<SidebarProps> = ({ currentPage, setCurrentPage, onHelpCl
             <HelpCircle size={20} />
             <span>Ajuda</span>
         </button>
-        <div className="text-center text-xs text-gray-500 mt-4">
-            <p>&copy; 2026 Automatizador de Planos SaaS</p>
+        <button
+            onClick={onLogout}
+            className="flex w-full items-center space-x-3 px-3 py-2.5 rounded-lg text-left text-sm font-medium transition-all duration-200 text-red-400 hover:bg-red-500/10 hover:text-red-500"
+        >
+            <LogOut size={20} />
+            <span>Sair</span>
+        </button>
+        <div className="text-center text-[10px] text-gray-500 mt-4 uppercase tracking-tighter opacity-50">
+            <p>&copy; 2026 Automatizador SaaS</p>
         </div>
       </div>
     </aside>

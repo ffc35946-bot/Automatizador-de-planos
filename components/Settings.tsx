@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import Card from './Card';
-import { User as UserIcon, Phone, Mail, Lock, ShieldCheck, Save, CheckCircle, Bell, Laptop, AlertTriangle, ArrowLeft } from 'lucide-react';
+import { User as UserIcon, Phone, Mail, Lock, ShieldCheck, Save, CheckCircle, Bell, Laptop, AlertTriangle, ArrowLeft, Trash2, RefreshCcw } from 'lucide-react';
 import type { User } from '../types';
 
 const Settings: React.FC = () => {
@@ -13,7 +13,7 @@ const Settings: React.FC = () => {
   const [isSaving, setIsSaving] = useState(false);
   const [message, setMessage] = useState<{type: 'success' | 'error', text: string} | null>(null);
   
-  // Estados para exclusão de conta
+  // Estados para exclusão de dados
   const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
   const [deleteInput, setDeleteInput] = useState('');
 
@@ -70,25 +70,21 @@ const Settings: React.FC = () => {
     setMessage({ type: 'success', text: 'Senha alterada com sucesso!' });
   };
 
-  const executeAccountDeletion = () => {
+  const executeDataReset = () => {
     if (!user || deleteInput !== 'EXCLUIR') return;
 
-    // 1. Remover do array global de usuários
-    const allUsers = JSON.parse(localStorage.getItem('saas_users') || '[]');
-    const updatedUsers = allUsers.filter((u: User) => u.email !== user.email);
-    localStorage.setItem('saas_users', JSON.stringify(updatedUsers));
-
-    // 2. Limpar dados específicos do usuário
+    // Limpa APENAS os dados operacionais, mantém a conta (usuário)
     localStorage.removeItem(`logs_${user.email}`);
     localStorage.removeItem(`integrations_${user.email}`);
     localStorage.removeItem(`config_${user.email}`);
     localStorage.removeItem(`mappings_${user.email}`);
 
-    // 3. Encerrar sessão
-    localStorage.removeItem('saas_active_session');
+    // Feedback visual
+    setMessage({ type: 'success', text: 'Todos os seus dados operacionais foram resetados.' });
+    setShowDeleteConfirmation(false);
+    setDeleteInput('');
     
-    // 4. Recarregar app para voltar ao login
-    window.location.reload();
+    // Pequeno delay para garantir que o usuário veja a mensagem antes de qualquer atualização de estado global se houver
   };
 
   if (showDeleteConfirmation) {
@@ -96,45 +92,45 @@ const Settings: React.FC = () => {
       <div className="min-h-[70vh] flex items-center justify-center animate-fade-in p-4">
         <div className="w-full max-w-lg bg-card border border-red-500/30 rounded-[2.5rem] p-8 md:p-10 shadow-2xl text-center space-y-6">
           <div className="w-20 h-20 bg-red-500/10 rounded-full flex items-center justify-center mx-auto mb-2">
-            <AlertTriangle size={40} className="text-red-500" />
+            <Trash2 size={40} className="text-red-500" />
           </div>
           <div>
-            <h2 className="text-2xl md:text-3xl font-black text-white mb-3">Você tem certeza?</h2>
+            <h2 className="text-2xl md:text-3xl font-black text-white mb-3 tracking-tight">Limpar Meus Dados?</h2>
             <p className="text-sm text-text-secondary leading-relaxed">
-              Esta ação apagará <strong>permanentemente</strong> sua conta, todos os logs de vendas, integrações e mapeamentos. Não há como desfazer isso.
+              Isso apagará seus <strong>Logs, Integrações e Mapeamentos</strong>. Sua conta continuará ativa, mas o sistema voltará ao estado original.
             </p>
           </div>
 
           <div className="space-y-4">
             <label className="block text-[10px] font-black uppercase tracking-widest text-text-secondary">
-              Digite <span className="text-red-500">EXCLUIR</span> abaixo para confirmar:
+              Confirme digitando <span className="text-red-500">EXCLUIR</span>:
             </label>
             <input 
               type="text" 
               value={deleteInput}
               onChange={(e) => setDeleteInput(e.target.value)}
-              placeholder="Digite aqui..."
-              className="w-full bg-background border border-white/10 rounded-xl px-4 py-4 text-center text-sm font-black text-white focus:ring-2 focus:ring-red-500 outline-none transition-all"
+              placeholder="Digite EXCLUIR para confirmar"
+              className="w-full bg-background border border-white/10 rounded-xl px-4 py-4 text-center text-sm font-black text-white focus:ring-2 focus:ring-red-500 outline-none transition-all placeholder:text-gray-700"
             />
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-4">
+          <div className="grid grid-cols-2 gap-4 pt-4">
             <button 
               onClick={() => { setShowDeleteConfirmation(false); setDeleteInput(''); }}
               className="flex items-center justify-center gap-2 py-4 px-6 bg-sidebar border border-border rounded-xl text-xs font-black uppercase tracking-widest text-white hover:bg-card transition-all"
             >
-              <ArrowLeft size={16} /> Voltar
+              Voltar
             </button>
             <button 
               disabled={deleteInput !== 'EXCLUIR'}
-              onClick={executeAccountDeletion}
+              onClick={executeDataReset}
               className={`py-4 px-6 rounded-xl text-xs font-black uppercase tracking-widest transition-all ${
                 deleteInput === 'EXCLUIR' 
                   ? 'bg-red-500 text-white shadow-lg shadow-red-500/20' 
                   : 'bg-red-500/10 text-red-500/30 cursor-not-allowed border border-red-500/10'
               }`}
             >
-              Continuar Exclusão
+              Continuar
             </button>
           </div>
         </div>
@@ -157,7 +153,6 @@ const Settings: React.FC = () => {
       )}
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 md:gap-8">
-        {/* Perfil */}
         <div className="space-y-6 md:space-y-8">
           <Card title="Dados do Perfil" className="bg-card/40 border-border/50">
             <form onSubmit={handleUpdateProfile} className="space-y-5">
@@ -203,19 +198,19 @@ const Settings: React.FC = () => {
             </form>
           </Card>
 
-          <Card title="Notificações" className="bg-card/40 border-border/50">
+          <Card title="Preferências" className="bg-card/40 border-border/50">
             <div className="space-y-3">
               <div className="flex items-center justify-between p-4 bg-background/30 rounded-xl border border-white/5">
                 <div className="flex items-center gap-3">
                   <Bell size={18} className="text-primary" />
-                  <span className="text-xs font-semibold text-white">Alertas de Erro</span>
+                  <span className="text-xs font-semibold text-white">Alertas de Venda</span>
                 </div>
-                <input type="checkbox" className="w-5 h-5 accent-primary cursor-pointer" />
+                <input type="checkbox" defaultChecked className="w-5 h-5 accent-primary cursor-pointer" />
               </div>
               <div className="flex items-center justify-between p-4 bg-background/30 rounded-xl border border-white/5">
                 <div className="flex items-center gap-3">
                   <Laptop size={18} className="text-secondary" />
-                  <span className="text-xs font-semibold text-white">Relatórios Semanais</span>
+                  <span className="text-xs font-semibold text-white">Modo Desenvolvedor</span>
                 </div>
                 <input type="checkbox" className="w-5 h-5 accent-secondary cursor-pointer" />
               </div>
@@ -223,9 +218,8 @@ const Settings: React.FC = () => {
           </Card>
         </div>
 
-        {/* Segurança */}
         <div className="space-y-6 md:space-y-8">
-          <Card title="Segurança da Conta" className="bg-card/40 border-border/50">
+          <Card title="Segurança" className="bg-card/40 border-border/50">
             <form onSubmit={handleChangePassword} className="space-y-5">
               <div className="space-y-1.5">
                 <label className="text-[10px] font-bold text-text-secondary uppercase tracking-widest ml-1">Senha Atual</label>
@@ -254,22 +248,23 @@ const Settings: React.FC = () => {
                 </div>
               </div>
               <button type="submit" className="w-full bg-sidebar border border-border/50 hover:bg-card text-white font-bold py-3.5 rounded-xl transition-all text-sm">
-                Redefinir Senha
+                Atualizar Senha
               </button>
             </form>
           </Card>
 
           <div className="p-6 bg-red-500/5 border border-red-500/20 rounded-[2rem] space-y-4">
              <div className="flex items-center gap-3 text-red-400">
-               <AlertTriangle size={24} />
-               <h3 className="font-black text-sm uppercase tracking-wider">Zona de Risco</h3>
+               <AlertTriangle size={20} />
+               <h3 className="font-black text-xs uppercase tracking-wider">Limpeza de Conta</h3>
              </div>
-             <p className="text-xs text-red-400/70 leading-relaxed font-medium">Excluir sua conta apagará permanentemente todos os seus logs e configurações de integração. Não é possível reverter esta ação.</p>
+             <p className="text-[11px] text-red-400/70 leading-relaxed font-medium">Esta opção apaga todos os seus dados operacionais mas mantém sua conta de acesso ativa.</p>
              <button 
               onClick={() => setShowDeleteConfirmation(true)}
-              className="w-full py-3 border border-red-500/30 rounded-xl text-[11px] font-black uppercase tracking-widest text-red-500 hover:bg-red-500 hover:text-white transition-all shadow-sm"
+              className="w-full py-3 bg-red-500/10 border border-red-500/30 rounded-xl text-[10px] font-black uppercase tracking-widest text-red-500 hover:bg-red-500 hover:text-white transition-all shadow-sm flex items-center justify-center gap-2"
              >
-                Apagar Todos os Meus Dados
+                <RefreshCcw size={14} />
+                Resetar Todos os Dados
              </button>
           </div>
         </div>

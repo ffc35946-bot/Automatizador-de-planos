@@ -86,19 +86,19 @@ const Integrations: React.FC<IntegrationsProps> = ({ onHelpClick }) => {
 
   return (
     <div className="space-y-6 md:space-y-8 animate-fade-in pb-20">
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between gap-4">
         <div className="flex-1">
            <h2 className="text-3xl md:text-4xl font-black text-white tracking-tight">Canais</h2>
-           <p className="text-sm text-text-secondary mt-1">Conecte seus checkouts ao seu sistema.</p>
+           <p className="text-xs md:text-sm text-text-secondary mt-1">Conecte seus checkouts ao seu sistema.</p>
         </div>
         {onHelpClick && (
           <button 
             onClick={onHelpClick}
-            className="flex items-center gap-2 px-4 py-2.5 bg-yellow-500/10 text-yellow-500 rounded-xl border border-yellow-500/20 font-black uppercase tracking-widest text-[10px] md:text-xs transition-all hover:bg-yellow-500/20 active:scale-95 shadow-lg shadow-yellow-500/5"
+            className="flex items-center justify-center gap-2 p-3 md:px-5 md:py-3 bg-yellow-500/10 text-yellow-500 rounded-2xl border border-yellow-500/20 font-black uppercase tracking-widest transition-all hover:bg-yellow-500/20 active:scale-95 shadow-lg shadow-yellow-500/5 group"
           >
-            <HelpCircle size={18} className="md:w-5 md:h-5" />
-            <span className="hidden sm:inline">Como Configurar?</span>
-            <span className="sm:hidden">Ajuda</span>
+            <HelpCircle size={20} className="group-hover:rotate-12 transition-transform" />
+            <span className="hidden md:inline text-[11px]">Central de Ajuda</span>
+            <span className="md:hidden text-[10px]">Ajuda</span>
           </button>
         )}
       </div>
@@ -120,13 +120,14 @@ const Integrations: React.FC<IntegrationsProps> = ({ onHelpClick }) => {
                       </span>
                     </div>
                   </div>
+                  {/* Botões com tamanho idêntico de 128px (w-32) para harmonia visual */}
                   <button 
                     onClick={() => handleConnectClick(int)} 
-                    className={`w-full sm:w-28 md:w-32 py-2.5 rounded-xl text-[11px] font-black uppercase tracking-wider transition-all shrink-0 ${
+                    className={`w-full sm:w-32 py-3 rounded-xl text-[11px] font-black uppercase tracking-wider transition-all shrink-0 ${
                       int.connected ? 'bg-secondary/10 text-secondary border border-secondary/20' : 'bg-primary text-white shadow-lg shadow-primary/20'
                     }`}
                   >
-                    {int.connected ? 'Ajustar' : 'Conectar'}
+                    {int.connected ? 'Configurar' : 'Conectar'}
                   </button>
                 </div>
               ))}
@@ -142,12 +143,12 @@ const Integrations: React.FC<IntegrationsProps> = ({ onHelpClick }) => {
                   <Link2 className="absolute right-4 top-3.5 text-gray-500" size={18} />
                 </div>
               </div>
-              <button onClick={runTestIntegration} disabled={isTesting || !saasConfig.endpoint} className="w-full flex items-center justify-center gap-2 bg-sidebar border border-border/50 rounded-xl py-3.5 text-xs font-bold text-white hover:bg-card transition-all uppercase tracking-widest">
+              <button onClick={runTestIntegration} disabled={isTesting || !saasConfig.endpoint} className="w-full flex items-center justify-center gap-2 bg-sidebar border border-border/50 rounded-xl py-4 text-xs font-bold text-white hover:bg-card transition-all uppercase tracking-widest">
                 {isTesting ? <Loader2 size={16} className="animate-spin" /> : <Play size={16} />}
                 Disparar Teste
               </button>
               {testResult && (
-                <div className={`p-3 rounded-xl text-xs font-bold border animate-slide-down ${testResult.success ? 'bg-secondary/10 border-secondary/20 text-secondary' : 'bg-red-500/10 border-red-500/20 text-red-400'}`}>
+                <div className={`p-4 rounded-xl text-[11px] font-bold border animate-slide-down ${testResult.success ? 'bg-secondary/10 border-secondary/20 text-secondary' : 'bg-red-500/10 border-red-500/20 text-red-400'}`}>
                   {testResult.message}
                 </div>
               )}
@@ -165,9 +166,9 @@ const Integrations: React.FC<IntegrationsProps> = ({ onHelpClick }) => {
             ) : (
               planMappings.map((m) => (
                 <div key={m.id} className="flex items-center gap-2 bg-background/30 p-3 rounded-xl border border-white/5 group">
-                  <input type="text" value={m.checkoutId} onChange={(e) => setPlanMappings(planMappings.map(x => x.id === m.id ? {...x, checkoutId: e.target.value} : x))} className="flex-1 bg-background border border-white/5 rounded-lg px-3 py-2.5 text-xs text-white placeholder:text-gray-600" placeholder="ID no Checkout" />
+                  <input type="text" value={m.checkoutId} onChange={(e) => setPlanMappings(planMappings.map(x => x.id === m.id ? {...x, checkoutId: e.target.value} : x))} className="flex-1 bg-background border border-white/5 rounded-lg px-3 py-2.5 text-xs text-white placeholder:text-gray-600" placeholder="ID Checkout" />
                   <ArrowRightLeft size={14} className="text-gray-600 shrink-0" />
-                  <input type="text" value={m.saasPlan} onChange={(e) => setPlanMappings(planMappings.map(x => x.id === m.id ? {...x, saasPlan: e.target.value} : x))} className="flex-1 bg-background border border-white/5 rounded-lg px-3 py-2.5 text-xs text-white placeholder:text-gray-600" placeholder="Nome no SaaS" />
+                  <input type="text" value={m.saasPlan} onChange={(e) => setPlanMappings(planMappings.map(x => x.id === m.id ? {...x, saasPlan: e.target.value} : x))} className="flex-1 bg-background border border-white/5 rounded-lg px-3 py-2.5 text-xs text-white placeholder:text-gray-600" placeholder="Nome SaaS" />
                   <button onClick={() => setPlanMappings(planMappings.filter(x => x.id !== m.id))} className="text-red-500/30 hover:text-red-500 p-2 transition-colors"><Trash2 size={16} /></button>
                 </div>
               ))
@@ -178,7 +179,7 @@ const Integrations: React.FC<IntegrationsProps> = ({ onHelpClick }) => {
             </button>
           </div>
           <button onClick={handleSaveAll} className="w-full mt-6 bg-primary hover:bg-indigo-500 text-white font-black py-4 rounded-xl shadow-xl transition-all uppercase tracking-widest text-sm">
-            Salvar Configuração
+            Salvar Configurações
           </button>
         </Card>
       </div>

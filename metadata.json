@@ -1,0 +1,5 @@
+{
+  "name": "Automatizador de Planos SaaS",
+  "description": "Uma aplicação para automatizar a ativação de planos de usuários para negócios micro-SaaS após a confirmação de pagamento de plataformas de checkout como Kirvano, Canto e Kiwify. Possui um assistente de solução de problemas com tecnologia de IA para ajudar a resolver problemas de ativação.",
+  "requestFramePermissions": []
+}
